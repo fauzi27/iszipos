@@ -1,0 +1,22 @@
+// Top-level build file
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Diperbarui ke versi 8.1.1 (Standar yang mendukung compileSdk 34 / Android 14)
+        classpath 'com.android.tools.build:gradle:8.1.1' 
+
+        // Plugin Google Services versi terbaru yang lebih stabil
+        classpath 'com.google.gms:google-services:4.4.1'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
