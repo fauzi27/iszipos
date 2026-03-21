@@ -4,9 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#0f172a">
-
-    <LinearLayout
+    android:background="#070B19"> <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -14,119 +12,148 @@
         android:padding="24dp">
 
         <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_marginBottom="24dp"
-            android:src="@drawable/ic_launcher" />
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_launcher"
+            app:tint="#00E5FF" /> 
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ISZI NEXUS"
+            android:textColor="#00E5FF"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.1"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SMART SUPERMARKET SYSTEM"
+            android:textColor="#8B9BB4"
+            android:textSize="10sp"
+            android:letterSpacing="0.2"
+            android:textStyle="bold"
+            android:layout_marginBottom="32dp"/>
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="#1e293b"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="5dp">
+            app:cardBackgroundColor="#111827"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="12dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="24dp">
+                android:orientation="vertical">
 
-                <TextView
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Masuk ke ISZI"
-                    android:textColor="#ffffff"
-                    android:textSize="22sp"
-                    android:textStyle="bold"
-                    android:gravity="center"
-                    android:layout_marginBottom="24dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="ID Kasir / Email"
-                    android:textColor="#94a3b8"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="6dp" />
-
-                <EditText
-                    android:id="@+id/inputEmail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="#334155"
-                    android:textColor="#ffffff"
-                    android:textColorHint="#6b7280"
-                    android:hint="Masukkan ID Kasir atau Email"
-                    android:inputType="textEmailAddress"
-                    android:padding="14dp"
-                    android:layout_marginBottom="16dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Password"
-                    android:textColor="#94a3b8"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="6dp" />
-
-                <EditText
-                    android:id="@+id/inputPassword"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="#334155"
-                    android:textColor="#ffffff"
-                    android:textColorHint="#6b7280"
-                    android:hint="Minimal 6 karakter"
-                    android:inputType="textPassword"
-                    android:padding="14dp"
-                    android:layout_marginBottom="24dp" />
-
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:visibility="gone"
-                    android:indeterminateTint="#ffffff" />
-
-                <Button
-                    android:id="@+id/btnLogin"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="#2563eb"
-                    android:textColor="#ffffff"
-                    android:text="Masuk"
-                    android:textStyle="bold"
-                    android:paddingVertical="14dp"
-                    android:textAllCaps="false" />
+                    android:layout_height="4dp"
+                    android:background="#00E5FF" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
-                    android:layout_marginTop="24dp">
+                    android:orientation="vertical"
+                    android:padding="28dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Belum punya akun? "
-                        android:textColor="#94a3b8"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/txtToggleRegister"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Daftar Gratis"
-                        android:textColor="#60a5fa"
+                        android:text="IDENTITAS KASIR"
+                        android:textColor="#00E5FF"
+                        android:textSize="10sp"
                         android:textStyle="bold"
-                        android:textSize="13sp" />
-                </LinearLayout>
+                        android:letterSpacing="0.1"
+                        android:layout_marginBottom="8dp" />
 
+                    <EditText
+                        android:id="@+id/inputEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="#00E5FF"
+                        android:textColor="#ffffff"
+                        android:textColorHint="#475569"
+                        android:hint="Scan Barcode / Ketik ID"
+                        android:inputType="textEmailAddress"
+                        android:paddingVertical="12dp"
+                        android:paddingHorizontal="4dp"
+                        android:layout_marginBottom="24dp"
+                        android:textSize="16sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="KODE OTORISASI"
+                        android:textColor="#00E5FF"
+                        android:textSize="10sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.1"
+                        android:layout_marginBottom="8dp" />
+
+                    <EditText
+                        android:id="@+id/inputPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="#00E5FF"
+                        android:textColor="#ffffff"
+                        android:textColorHint="#475569"
+                        android:hint="Masukkan PIN / Sandi"
+                        android:inputType="textPassword"
+                        android:paddingVertical="12dp"
+                        android:paddingHorizontal="4dp"
+                        android:layout_marginBottom="32dp"
+                        android:textSize="16sp"/>
+
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:visibility="gone"
+                        android:indeterminateTint="#00E5FF" />
+
+                    <Button
+                        android:id="@+id/btnLogin"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:backgroundTint="#00E5FF"
+                        android:textColor="#070B19"
+                        android:text="INISIASI SISTEM"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.05"
+                        app:cornerRadius="16dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginTop="24dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Belum terdaftar di sistem? "
+                            android:textColor="#64748B"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/txtToggleRegister"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Minta Akses"
+                            android:textColor="#00E5FF"
+                            android:textStyle="bold"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
     </LinearLayout>
