@@ -37,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
 
         if (mAuth.getCurrentUser() != null) {
             goToLobby();
+            return;
         }
 
         inputEmail = findViewById(R.id.inputEmail);
