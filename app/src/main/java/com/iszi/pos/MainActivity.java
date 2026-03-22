@@ -102,9 +102,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        // Tombol Mulai Jualan (Cashier)
+        // Tombol Mulai Jualan (Cashier) -> SUDAH AKTIF! 🚀
         btnCashier.setOnClickListener(v -> {
-            Toast.makeText(this, "Menu Kasir & Keranjang sedang dibangun...", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, CashierActivity.class);
+            startActivity(intent);
         });
 
         // Tombol Laporan
@@ -112,9 +113,10 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Menu Laporan sedang dibangun...", Toast.LENGTH_SHORT).show();
         });
 
-        // Tombol Manual
+        // Tombol Manual -> SUDAH AKTIF! 🚀
         btnManual.setOnClickListener(v -> {
-            Toast.makeText(this, "Menu Manual sedang dibangun...", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, CalculatorActivity.class);
+            startActivity(intent);
         });
 
         // Tombol Stok Barang
@@ -127,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Menu Buku Besar sedang dibangun...", Toast.LENGTH_SHORT).show();
         });
 
-        // Tombol Kelola Menu (Admin) -> Ini yang sudah jalan!
+        // Tombol Kelola Menu (Admin) -> SUDAH AKTIF! 🚀
         btnAdmin.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AdminActivity.class);
             startActivity(intent);
