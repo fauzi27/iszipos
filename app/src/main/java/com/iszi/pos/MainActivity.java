@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
     // Deklarasi Variabel
     private FirebaseAuth auth;
     private FirebaseFirestore db;
+    private MaterialButton btnCashier, btnReport, btnManual, btnStock, btnTable, btnAdmin, btnSettings, btnLogout;
     
     private TextView tvShopName, tvShopAddress, tvRoleBadge, tvConnectionStatus;
     private MaterialButton btnCashier, btnReport, btnManual, btnLogout;
