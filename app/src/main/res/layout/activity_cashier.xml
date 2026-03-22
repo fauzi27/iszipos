@@ -130,7 +130,7 @@
                 android:textSize="14sp"
                 android:textStyle="bold"/>
                 
-            <TouchableOpacity
+            <LinearLayout
                 android:id="@+id/btnResetCart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -139,7 +139,7 @@
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="6dp">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Reset" android:textColor="#FCA5A5" android:textStyle="bold" android:textSize="12sp"/>
-            </TouchableOpacity>
+            </LinearLayout>
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
