@@ -42,7 +42,10 @@ public class MainActivity extends AppCompatActivity {
 
         // 3. Hubungkan Elemen UI dari XML
         initViews();
-
+        btnStock = findViewById(R.id.btnStock);
+btnTable = findViewById(R.id.btnTable);
+btnAdmin = findViewById(R.id.btnAdmin);
+btnSettings = findViewById(R.id.btnSettings);
         // 4. Ambil Data Profil Toko/User dari Firestore
         fetchBusinessData(currentUser.getUid());
 
