@@ -15,24 +15,23 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Deklarasi Variabel
+    // 1. Deklarasi Variabel (Hanya 1 baris untuk semua tombol agar tidak error dobel)
     private FirebaseAuth auth;
     private FirebaseFirestore db;
-    private MaterialButton btnCashier, btnReport, btnManual, btnStock, btnTable, btnAdmin, btnSettings, btnLogout;
     
     private TextView tvShopName, tvShopAddress, tvRoleBadge, tvConnectionStatus;
-    private MaterialButton btnCashier, btnReport, btnManual, btnLogout;
+    private MaterialButton btnCashier, btnReport, btnManual, btnStock, btnTable, btnAdmin, btnSettings, btnLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 1. Inisialisasi Firebase
+        // 2. Inisialisasi Firebase
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // 2. Cek Sesi Login User
+        // 3. Cek Sesi Login User
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser == null) {
             // Jika belum login, tendang ke halaman Login
@@ -40,22 +39,14 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // 3. Hubungkan Elemen UI dari XML
+        // 4. Hubungkan Elemen UI dari XML
         initViews();
-        btnStock = findViewById(R.id.btnStock);
-btnTable = findViewById(R.id.btnTable);
-btnAdmin = findViewById(R.id.btnAdmin);
-btnSettings = findViewById(R.id.btnSettings);
-        // 4. Ambil Data Profil Toko/User dari Firestore
+
+        // 5. Ambil Data Profil Toko/User dari Firestore
         fetchBusinessData(currentUser.getUid());
 
-        // 5. Aktifkan Tombol-tombol
+        // 6. Aktifkan Tombol-tombol
         setupListeners();
-        btnAdmin.setOnClickListener(v -> {
-    // Pindah ke Halaman Admin
-    Intent intent = new Intent(MainActivity.this, AdminActivity.class);
-    startActivity(intent);
-});
     }
 
     private void initViews() {
@@ -67,6 +58,10 @@ btnSettings = findViewById(R.id.btnSettings);
         btnCashier = findViewById(R.id.btnCashier);
         btnReport = findViewById(R.id.btnReport);
         btnManual = findViewById(R.id.btnManual);
+        btnStock = findViewById(R.id.btnStock);
+        btnTable = findViewById(R.id.btnTable);
+        btnAdmin = findViewById(R.id.btnAdmin);
+        btnSettings = findViewById(R.id.btnSettings);
         btnLogout = findViewById(R.id.btnLogout);
     }
 
@@ -109,7 +104,6 @@ btnSettings = findViewById(R.id.btnSettings);
     private void setupListeners() {
         // Tombol Mulai Jualan (Cashier)
         btnCashier.setOnClickListener(v -> {
-            // Nanti kita arahkan ke CashierActivity
             Toast.makeText(this, "Menu Kasir & Keranjang sedang dibangun...", Toast.LENGTH_SHORT).show();
         });
 
@@ -121,6 +115,27 @@ btnSettings = findViewById(R.id.btnSettings);
         // Tombol Manual
         btnManual.setOnClickListener(v -> {
             Toast.makeText(this, "Menu Manual sedang dibangun...", Toast.LENGTH_SHORT).show();
+        });
+
+        // Tombol Stok Barang
+        btnStock.setOnClickListener(v -> {
+            Toast.makeText(this, "Menu Stok Barang sedang dibangun...", Toast.LENGTH_SHORT).show();
+        });
+
+        // Tombol Buku Besar
+        btnTable.setOnClickListener(v -> {
+            Toast.makeText(this, "Menu Buku Besar sedang dibangun...", Toast.LENGTH_SHORT).show();
+        });
+
+        // Tombol Kelola Menu (Admin) -> Ini yang sudah jalan!
+        btnAdmin.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, AdminActivity.class);
+            startActivity(intent);
+        });
+
+        // Tombol Pengaturan
+        btnSettings.setOnClickListener(v -> {
+            Toast.makeText(this, "Menu Pengaturan sedang dibangun...", Toast.LENGTH_SHORT).show();
         });
 
         // Tombol Logout
