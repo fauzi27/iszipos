@@ -98,12 +98,10 @@
                 app:iconSize="32dp"
                 app:iconGravity="textStart"
                 app:iconPadding="16dp"/>
-
             <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:columnCount="2"
-                android:rowCount="3"
                 android:alignmentMode="alignMargins"
                 android:columnOrderPreserved="false">
 
@@ -131,7 +129,57 @@
                     app:iconGravity="top"
                     app:icon="@android:drawable/ic_menu_edit"/>
 
-                </GridLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnStock"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    android:text="Stok Barang"
+                    app:cornerRadius="16dp"
+                    app:backgroundTint="#4F46E5"
+                    app:iconGravity="top"
+                    app:icon="@android:drawable/ic_menu_gallery"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnTable"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    android:text="Buku Besar"
+                    app:cornerRadius="16dp"
+                    app:backgroundTint="#059669"
+                    app:iconGravity="top"
+                    app:icon="@android:drawable/ic_menu_agenda"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAdmin"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    android:text="Kelola Menu"
+                    app:cornerRadius="16dp"
+                    app:backgroundTint="#EA580C"
+                    app:iconGravity="top"
+                    app:icon="@android:drawable/ic_menu_manage"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSettings"
+                    android:layout_width="0dp"
+                    android:layout_height="100dp"
+                    android:layout_columnWeight="1"
+                    android:layout_margin="6dp"
+                    android:text="Pengaturan"
+                    app:cornerRadius="16dp"
+                    app:backgroundTint="#4B5563"
+                    app:iconGravity="top"
+                    app:icon="@android:drawable/ic_menu_preferences"/>
+
+            </GridLayout>
+
+            
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogout"
