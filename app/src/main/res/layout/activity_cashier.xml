@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0F172A">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical"
+        android:background="#1E293B">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_revert"
+            app:tint="#FFFFFF"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mulai Jualan"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp"/>
+
+        <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
+
+        <LinearLayout
+            android:id="@+id/btnHold"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingHorizontal="12dp"
+            android:background="@drawable/bg_badge_kasir"
+            android:backgroundTint="#7C2D12"
+            android:layout_marginEnd="8dp">
+            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@android:drawable/ic_menu_recent_history" app:tint="#FDBA74"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Gantung" android:textColor="#FDBA74" android:textSize="12sp" android:textStyle="bold" android:layout_marginStart="6dp"/>
+            <TextView android:id="@+id/tvHoldBadge" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(0)" android:textColor="#FFFFFF" android:textSize="12sp" android:layout_marginStart="4dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btnManual"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingHorizontal="12dp"
+            android:background="@drawable/bg_badge_kasir"
+            android:backgroundTint="#134E4A">
+            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@android:drawable/ic_menu_edit" app:tint="#5EEAD4"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Manual" android:textColor="#5EEAD4" android:textSize="12sp" android:textStyle="bold" android:layout_marginStart="6dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#1E293B"
+        android:paddingHorizontal="12dp"
+        android:paddingBottom="8dp">
+        
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+            <LinearLayout android:id="@+id/containerCategories" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingVertical="4dp"/>
+        </HorizontalScrollView>
+
+        <EditText
+            android:id="@+id/inputSearchMenu"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_circle_button"
+            android:backgroundTint="#0F172A"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#9CA3AF"
+            android:hint="Cari menu..."
+            android:paddingHorizontal="12dp"
+            android:layout_marginTop="8dp"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMenus"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.2"
+        android:padding="8dp"
+        android:clipToPadding="false"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:background="#1E293B"
+        android:elevation="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:gravity="center_vertical"
+            android:background="#0F172A">
+            
+            <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@android:drawable/ic_menu_myplaces" app:tint="#3B82F6"/>
+            
+            <EditText
+                android:id="@+id/inputBuyerName"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:background="@null"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#9CA3AF"
+                android:hint="Nama / Meja..."
+                android:layout_marginStart="8dp"
+                android:textSize="14sp"
+                android:textStyle="bold"/>
+                
+            <TouchableOpacity
+                android:id="@+id/btnResetCart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_badge_kasir"
+                android:backgroundTint="#7F1D1D"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Reset" android:textColor="#FCA5A5" android:textStyle="bold" android:textSize="12sp"/>
+            </TouchableOpacity>
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCart"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:background="#0F172A"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="#020617">
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:justifyContent="space-between"
+                android:layout_marginBottom="12dp">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="TOTAL TAGIHAN" android:textColor="#9CA3AF" android:textSize="12sp" android:textStyle="bold"/>
+                <TextView android:id="@+id/tvCartTotal" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 0" android:textColor="#22C55E" android:textSize="20sp" android:textStyle="bold"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal">
+                
+                <ImageButton
+                    android:id="@+id/btnHoldList"
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_badge_kasir"
+                    android:backgroundTint="#1D4ED8"
+                    android:src="@android:drawable/ic_menu_agenda"
+                    app:tint="#FFFFFF"
+                    android:layout_marginEnd="12dp"/>
+                    
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCheckout"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Bayar"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="#10B981"
+                    app:cornerRadius="12dp"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
