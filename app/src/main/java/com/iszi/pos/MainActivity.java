@@ -51,6 +51,11 @@ btnSettings = findViewById(R.id.btnSettings);
 
         // 5. Aktifkan Tombol-tombol
         setupListeners();
+        btnAdmin.setOnClickListener(v -> {
+    // Pindah ke Halaman Admin
+    Intent intent = new Intent(MainActivity.this, AdminActivity.class);
+    startActivity(intent);
+});
     }
 
     private void initViews() {
