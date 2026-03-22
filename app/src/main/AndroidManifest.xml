@@ -10,7 +10,6 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
-
         
         <activity
             android:name=".LoginActivity"
@@ -21,10 +20,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".MainActivity" />
 
         <activity android:name=".AdminActivity" />
-        
-    </application>
 
+        <activity android:name=".CalculatorActivity" />
+
+        <activity android:name=".CashierActivity" />
+
+    </application>
 </manifest>
