@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardBackgroundColor="#1E293B"
+    app:cardCornerRadius="24dp"
+    android:layout_margin="16dp">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <TextView
+                android:id="@+id/tvDialogTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tambah Menu Baru"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginBottom="24dp"/>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnPickImage"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                app:cardBackgroundColor="#334155"
+                app:cardCornerRadius="16dp"
+                android:layout_marginBottom="24dp">
+                
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:gravity="center">
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@android:drawable/ic_menu_camera"
+                        app:tint="#9CA3AF"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pilih Foto"
+                        android:textColor="#9CA3AF"
+                        android:textSize="10sp"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nama Menu" android:textColor="#9CA3AF" android:textSize="12sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
+            <EditText
+                android:id="@+id/inputMenuName"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_circle_button"
+                android:backgroundTint="#0F172A"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#475569"
+                android:paddingHorizontal="16dp"
+                android:hint="Cth: Nasi Goreng Spesial"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kategori" android:textColor="#9CA3AF" android:textSize="12sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
+            <EditText
+                android:id="@+id/inputMenuCategory"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_circle_button"
+                android:backgroundTint="#0F172A"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#475569"
+                android:paddingHorizontal="16dp"
+                android:hint="Cth: Makanan"
+                android:layout_marginBottom="16dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:baselineAligned="false">
+                
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="8dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Harga Jual (Rp)" android:textColor="#9CA3AF" android:textSize="12sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
+                    <EditText
+                        android:id="@+id/inputMenuPrice"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_circle_button"
+                        android:backgroundTint="#0F172A"
+                        android:textColor="#10B981"
+                        android:textStyle="bold"
+                        android:paddingHorizontal="16dp"
+                        android:inputType="number"
+                        android:hint="0"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="8dp">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Harga Modal (Rp)" android:textColor="#9CA3AF" android:textSize="12sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
+                    <EditText
+                        android:id="@+id/inputMenuCapital"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_circle_button"
+                        android:backgroundTint="#0F172A"
+                        android:textColor="#F59E0B"
+                        android:paddingHorizontal="16dp"
+                        android:inputType="number"
+                        android:hint="0"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Stok (Opsional)" android:textColor="#9CA3AF" android:textSize="12sp" android:textStyle="bold" android:layout_marginTop="16dp" android:layout_marginBottom="4dp"/>
+            <EditText
+                android:id="@+id/inputMenuStock"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_circle_button"
+                android:backgroundTint="#0F172A"
+                android:textColor="#FFFFFF"
+                android:paddingHorizontal="16dp"
+                android:inputType="number"
+                android:hint="Kosongkan jika tidak dibatasi"
+                android:layout_marginBottom="24dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="end">
+                
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCancel"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Batal"
+                    android:textColor="#EF4444"
+                    android:layout_marginEnd="8dp"/>
+                    
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSave"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Simpan Menu"
+                    app:backgroundTint="#EA580C"
+                    app:cornerRadius="8dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</androidx.cardview.widget.CardView>
