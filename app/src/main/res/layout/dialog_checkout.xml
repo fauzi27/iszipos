@@ -17,31 +17,54 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pembayaran"
+            android:text="Konfirmasi Pembayaran"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:gravity="center"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="12dp"/>
 
-        <TextView
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#334155" android:layout_marginBottom="12dp"/>
+
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Total Tagihan:"
-            android:textColor="#9CA3AF"
-            android:textSize="14sp"
-            android:gravity="center"/>
+            android:fadeScrollbars="false"
+            android:layout_marginBottom="12dp">
+            
+            <LinearLayout
+                android:id="@+id/containerCheckoutItems"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
+        </ScrollView>
 
-        <TextView
-            android:id="@+id/tvCheckoutTotal"
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#334155" android:layout_marginBottom="12dp" android:layerType="software" android:pathEffect="dash"/>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Rp 54.000"
-            android:textColor="#22C55E"
-            android:textSize="32sp"
-            android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginBottom="24dp"/>
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+            
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="TOTAL TAGIHAN:"
+                android:textColor="#9CA3AF"
+                android:textSize="14sp"
+                android:textStyle="bold"/>
+                
+            <TextView
+                android:id="@+id/tvCheckoutTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rp 0"
+                android:textColor="#22C55E"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
@@ -49,16 +72,13 @@
             android:text="Uang Diterima (Opsional)"
             android:textColor="#9CA3AF"
             android:textSize="12sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="6dp"
-            android:layout_marginStart="4dp"/>
+            android:layout_marginBottom="6dp"/>
 
         <EditText
             android:id="@+id/inputCheckoutCash"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:background="@drawable/bg_circle_button"
-            android:backgroundTint="#0F172A"
+            android:background="@drawable/bg_input_modern" 
             android:textColor="#FFFFFF"
             android:textColorHint="#475569"
             android:hint="Ketik jumlah uang pas / lebih..."
@@ -75,34 +95,34 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCheckoutCancel"
                 android:layout_width="0dp"
-                android:layout_height="55dp"
+                android:layout_height="50dp"
                 android:layout_weight="1"
                 android:text="Batal"
                 android:textColor="#FCA5A5"
                 app:backgroundTint="#7F1D1D"
-                app:cornerRadius="12dp"
+                app:cornerRadius="8dp"
                 android:layout_marginEnd="8dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCheckoutQRIS"
                 android:layout_width="0dp"
-                android:layout_height="55dp"
+                android:layout_height="50dp"
                 android:layout_weight="1"
                 android:text="QRIS"
                 android:textColor="#D8B4FE"
                 app:backgroundTint="#6B21A8"
-                app:cornerRadius="12dp"
+                app:cornerRadius="8dp"
                 android:layout_marginEnd="8dp"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCheckoutCash"
                 android:layout_width="0dp"
-                android:layout_height="55dp"
+                android:layout_height="50dp"
                 android:layout_weight="1"
                 android:text="Tunai"
                 android:textColor="#FFFFFF"
                 app:backgroundTint="#2563EB"
-                app:cornerRadius="12dp"/>
+                app:cornerRadius="8dp"/>
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
