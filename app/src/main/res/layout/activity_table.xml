@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0F172A">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        android:background="#047857">
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_revert"
+            app:tint="#FFFFFF"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Buku Besar (Audit)"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp"/>
+
+        <LinearLayout
+            android:id="@+id/btnExportAudit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_circle_button"
+            android:backgroundTint="#065F46"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp"
+            android:gravity="center">
+            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@android:drawable/ic_menu_manage" app:tint="#FFFFFF"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Export" android:textColor="#FFFFFF" android:textSize="12sp" android:textStyle="bold" android:layout_marginStart="6dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#1E293B"
+        android:padding="12dp"
+        android:elevation="4dp">
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_circle_button"
+            android:backgroundTint="#0F172A"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp">
+            
+            <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@android:drawable/ic_menu_search" app:tint="#9CA3AF"/>
+            
+            <EditText
+                android:id="@+id/inputSearchTable"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:hint="Cari: invoice, kasir, pelanggan, status..."
+                android:textColor="#FFFFFF"
+                android:textColorHint="#9CA3AF"
+                android:textSize="12sp"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshTable"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvTable"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="8dp"
+            android:clipToPadding="false"/>
+            
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</LinearLayout>
