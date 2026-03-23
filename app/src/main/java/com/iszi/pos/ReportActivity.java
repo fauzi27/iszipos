@@ -1,5 +1,6 @@
 package com.iszi.pos;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -24,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -55,7 +57,7 @@ public class ReportActivity extends AppCompatActivity {
     private String shopName = "ISZI POS", shopAddress = "Alamat Toko", shopFooter = "Terima Kasih";
     private boolean removeWatermark = false;
 
-    // 🔥 Launcher untuk Save File Excel (CSV) 🔥
+    // Launcher untuk Save File Excel (CSV)
     private String pendingCsvContent = "";
     private ActivityResultLauncher<Intent> csvSaveLauncher;
 
@@ -68,9 +70,9 @@ public class ReportActivity extends AppCompatActivity {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) ownerId = currentUser.getUid();
 
+        setupFileSaver(); 
         initViews();
         setupListeners();
-        setupFileSaver(); // Siapkan mesin penyimpan file
         
         fetchBusinessData();
         loadTransactionsByDate(); 
@@ -103,9 +105,21 @@ public class ReportActivity extends AppCompatActivity {
 
         tvDateDisplay.setText(sdfDisplay.format(activeDate.getTime()));
 
+        // MENGAKTIFKAN ADAPTER DENGAN TOMBOL REFUND & PAY DEBT
         txAdapter = new TransactionAdapter(filteredTxList, tx -> {
-            ReceiptDialog.show(this, tx, shopName, shopAddress, shopFooter, removeWatermark);
+            ReceiptDialog.show(this, tx, shopName, shopAddress, shopFooter, removeWatermark, new ReceiptDialog.ReceiptActionListener() {
+                @Override
+                public void onRefund(TransactionModel txData) {
+                    processRefund(txData);
+                }
+
+                @Override
+                public void onPayDebt(TransactionModel txData) {
+                    processPayDebt(txData);
+                }
+            });
         });
+        
         rvTransactions.setLayoutManager(new LinearLayoutManager(this));
         rvTransactions.setAdapter(txAdapter);
     }
@@ -136,7 +150,6 @@ public class ReportActivity extends AppCompatActivity {
             loadTransactionsByDate();
         });
 
-        // 🔥 TOMBOL EXPORT AKTIF 🔥
         findViewById(R.id.btnExportExcel).setOnClickListener(v -> exportToExcel());
         findViewById(R.id.btnExportPdf).setOnClickListener(v -> exportToPDF());
     }
@@ -214,6 +227,63 @@ public class ReportActivity extends AppCompatActivity {
     }
 
     // ==========================================
+    // 🔥 FUNGSI BATALKAN TRANSAKSI (REFUND) 🔥
+    // ==========================================
+    private void processRefund(TransactionModel tx) {
+        new AlertDialog.Builder(this)
+            .setTitle("Batalkan Transaksi?")
+            .setMessage("Stok barang akan dikembalikan ke sistem. Lanjutkan?")
+            .setPositiveButton("Ya, Batalkan", (d, w) -> {
+                db.collection("users").document(ownerId).collection("transactions").document(tx.getId())
+                  .update("status", "REFUNDED")
+                  .addOnSuccessListener(aVoid -> {
+                      // Kembalikan stok ke masing-masing menu
+                      if (tx.getItems() != null) {
+                          for (MenuModel item : tx.getItems()) {
+                              if (item.getId() != null && !item.getId().startsWith("MANUAL-")) {
+                                  db.collection("users").document(ownerId).collection("menus").document(item.getId())
+                                    .update("stock", FieldValue.increment(item.getStock()));
+                              }
+                          }
+                      }
+                      Toast.makeText(this, "Transaksi Dibatalkan!", Toast.LENGTH_SHORT).show();
+                      loadTransactionsByDate(); // Refresh Layar
+                  });
+            })
+            .setNegativeButton("Tutup", null)
+            .show();
+    }
+
+    // ==========================================
+    // 🔥 FUNGSI PELUNASAN HUTANG 🔥
+    // ==========================================
+    private void processPayDebt(TransactionModel tx) {
+        new AlertDialog.Builder(this)
+            .setTitle("Pelunasan Hutang")
+            .setMessage("Sisa: Rp " + formatRupiah.format(tx.getRemaining()).replace("Rp", "") + "\nPilih metode pelunasan:")
+            .setPositiveButton("TUNAI", (d, w) -> executePayDebt(tx, "TUNAI"))
+            .setNegativeButton("QRIS", (d, w) -> executePayDebt(tx, "QRIS"))
+            .setNeutralButton("Batal", null)
+            .show();
+    }
+
+    private void executePayDebt(TransactionModel tx, String newMethod) {
+        String updatedMethod = tx.getMethod() + " + " + newMethod;
+        int updatedPaid = tx.getPaid() + tx.getRemaining();
+
+        db.collection("users").document(ownerId).collection("transactions").document(tx.getId())
+          .update(
+              "remaining", 0,
+              "paid", updatedPaid,
+              "method", updatedMethod
+          )
+          .addOnSuccessListener(aVoid -> {
+              Toast.makeText(this, "Hutang Lunas!", Toast.LENGTH_SHORT).show();
+              loadTransactionsByDate(); // Refresh layar
+          });
+    }
+
+    // ==========================================
     // 🔥 FUNGSI EXPORT KE EXCEL (Format CSV) 🔥
     // ==========================================
     private void exportToExcel() {
@@ -245,7 +315,6 @@ public class ReportActivity extends AppCompatActivity {
             csv.append(status).append("\n");
         }
 
-        // Panggil jendela 'Save As' Android
         pendingCsvContent = csv.toString();
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -281,11 +350,11 @@ public class ReportActivity extends AppCompatActivity {
 
         for (TransactionModel t : filteredTxList) {
             String status = "LUNAS";
-            String colorStatus = "#10B981"; // Hijau
+            String colorStatus = "#10B981"; 
             if ("REFUNDED".equals(t.getStatus())) {
-                status = "BATAL"; colorStatus = "#9CA3AF"; // Abu-abu
+                status = "BATAL"; colorStatus = "#9CA3AF"; 
             } else if (t.getRemaining() > 0) {
-                status = "HUTANG"; colorStatus = "#F59E0B"; // Oranye
+                status = "HUTANG"; colorStatus = "#F59E0B"; 
             }
 
             html.append("<tr>");
@@ -298,7 +367,6 @@ public class ReportActivity extends AppCompatActivity {
         }
         html.append("</table></body></html>");
 
-        // Proses cetak HTML menjadi PDF menggunakan PrintManager Android
         WebView webView = new WebView(this);
         webView.setWebViewClient(new WebViewClient() {
             @Override
