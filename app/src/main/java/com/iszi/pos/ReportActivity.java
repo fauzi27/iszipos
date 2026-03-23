@@ -3,6 +3,8 @@ package com.iszi.pos;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.print.PrintAttributes;
@@ -13,7 +15,6 @@ import android.text.TextWatcher;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
@@ -42,22 +44,23 @@ public class ReportActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private String ownerId;
 
-    private TextView tvDateDisplay, tvTotalOmzet, tvTotalLaba, tvTotalTunai, tvTotalHutang;
+    private TextView tvDateDisplay, tvTotalOmzet, tvTotalLaba, tvTotalTunai, tvTotalQRIS, tvTotalHutang, tvTotalNota, tvLabelOmzet;
     private EditText inputSearchTx;
     private RecyclerView rvTransactions;
+    private MaterialButton btnFilterDaily, btnFilterWeekly, btnFilterMonthly;
 
     private List<TransactionModel> rawTxList = new ArrayList<>();
     private List<TransactionModel> filteredTxList = new ArrayList<>();
     private TransactionAdapter txAdapter;
 
     private Calendar activeDate = Calendar.getInstance();
+    private String filterMode = "daily"; // daily, weekly, monthly
+    
     private NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
-    private SimpleDateFormat sdfDisplay = new SimpleDateFormat("dd MMM yyyy", new Locale("id", "ID"));
 
     private String shopName = "ISZI POS", shopAddress = "Alamat Toko", shopFooter = "Terima Kasih";
     private boolean removeWatermark = false;
 
-    // Launcher untuk Save File Excel (CSV)
     private String pendingCsvContent = "";
     private ActivityResultLauncher<Intent> csvSaveLauncher;
 
@@ -75,6 +78,7 @@ public class ReportActivity extends AppCompatActivity {
         setupListeners();
         
         fetchBusinessData();
+        updateDateDisplay();
         loadTransactionsByDate(); 
     }
 
@@ -86,9 +90,9 @@ public class ReportActivity extends AppCompatActivity {
                     OutputStream os = getContentResolver().openOutputStream(uri);
                     os.write(pendingCsvContent.getBytes());
                     os.close();
-                    Toast.makeText(this, "File berhasil disimpan!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Excel berhasil disimpan!", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
-                    Toast.makeText(this, "Gagal menyimpan file: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Gagal: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -99,24 +103,22 @@ public class ReportActivity extends AppCompatActivity {
         tvTotalOmzet = findViewById(R.id.tvTotalOmzet);
         tvTotalLaba = findViewById(R.id.tvTotalLaba);
         tvTotalTunai = findViewById(R.id.tvTotalTunai);
+        tvTotalQRIS = findViewById(R.id.tvTotalQRIS);
         tvTotalHutang = findViewById(R.id.tvTotalHutang);
+        tvTotalNota = findViewById(R.id.tvTotalNota);
+        tvLabelOmzet = findViewById(R.id.tvLabelOmzet);
+        
         inputSearchTx = findViewById(R.id.inputSearchTx);
         rvTransactions = findViewById(R.id.rvTransactions);
+        
+        btnFilterDaily = findViewById(R.id.btnFilterDaily);
+        btnFilterWeekly = findViewById(R.id.btnFilterWeekly);
+        btnFilterMonthly = findViewById(R.id.btnFilterMonthly);
 
-        tvDateDisplay.setText(sdfDisplay.format(activeDate.getTime()));
-
-        // MENGAKTIFKAN ADAPTER DENGAN TOMBOL REFUND & PAY DEBT
         txAdapter = new TransactionAdapter(filteredTxList, tx -> {
             ReceiptDialog.show(this, tx, shopName, shopAddress, shopFooter, removeWatermark, new ReceiptDialog.ReceiptActionListener() {
-                @Override
-                public void onRefund(TransactionModel txData) {
-                    processRefund(txData);
-                }
-
-                @Override
-                public void onPayDebt(TransactionModel txData) {
-                    processPayDebt(txData);
-                }
+                @Override public void onRefund(TransactionModel txData) { processRefund(txData); }
+                @Override public void onPayDebt(TransactionModel txData) { processPayDebt(txData); }
             });
         });
         
@@ -127,17 +129,12 @@ public class ReportActivity extends AppCompatActivity {
     private void setupListeners() {
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         
-        findViewById(R.id.btnDatePrev).setOnClickListener(v -> {
-            activeDate.add(Calendar.DAY_OF_MONTH, -1);
-            tvDateDisplay.setText(sdfDisplay.format(activeDate.getTime()));
-            loadTransactionsByDate();
-        });
+        findViewById(R.id.btnDatePrev).setOnClickListener(v -> changeDate(-1));
+        findViewById(R.id.btnDateNext).setOnClickListener(v -> changeDate(1));
 
-        findViewById(R.id.btnDateNext).setOnClickListener(v -> {
-            activeDate.add(Calendar.DAY_OF_MONTH, 1);
-            tvDateDisplay.setText(sdfDisplay.format(activeDate.getTime()));
-            loadTransactionsByDate();
-        });
+        btnFilterDaily.setOnClickListener(v -> setFilterMode("daily"));
+        btnFilterWeekly.setOnClickListener(v -> setFilterMode("weekly"));
+        btnFilterMonthly.setOnClickListener(v -> setFilterMode("monthly"));
 
         inputSearchTx.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -152,6 +149,59 @@ public class ReportActivity extends AppCompatActivity {
 
         findViewById(R.id.btnExportExcel).setOnClickListener(v -> exportToExcel());
         findViewById(R.id.btnExportPdf).setOnClickListener(v -> exportToPDF());
+    }
+
+    // ==========================================
+    // 🔥 MESIN WAKTU & FILTER 🔥
+    // ==========================================
+    private void setFilterMode(String mode) {
+        filterMode = mode;
+        
+        // Reset warna tombol
+        int colorActiveBg = Color.parseColor("#3B82F6");
+        int colorInactiveBg = Color.parseColor("#334155");
+        int colorActiveText = Color.parseColor("#FFFFFF");
+        int colorInactiveText = Color.parseColor("#9CA3AF");
+
+        btnFilterDaily.setBackgroundTintList(ColorStateList.valueOf(mode.equals("daily") ? colorActiveBg : colorInactiveBg));
+        btnFilterDaily.setTextColor(mode.equals("daily") ? colorActiveText : colorInactiveText);
+        
+        btnFilterWeekly.setBackgroundTintList(ColorStateList.valueOf(mode.equals("weekly") ? colorActiveBg : colorInactiveBg));
+        btnFilterWeekly.setTextColor(mode.equals("weekly") ? colorActiveText : colorInactiveText);
+        
+        btnFilterMonthly.setBackgroundTintList(ColorStateList.valueOf(mode.equals("monthly") ? colorActiveBg : colorInactiveBg));
+        btnFilterMonthly.setTextColor(mode.equals("monthly") ? colorActiveText : colorInactiveText);
+
+        updateDateDisplay();
+        loadTransactionsByDate();
+    }
+
+    private void changeDate(int direction) {
+        if (filterMode.equals("daily")) {
+            activeDate.add(Calendar.DAY_OF_MONTH, direction);
+        } else if (filterMode.equals("weekly")) {
+            activeDate.add(Calendar.WEEK_OF_YEAR, direction);
+        } else if (filterMode.equals("monthly")) {
+            activeDate.add(Calendar.MONTH, direction);
+        }
+        updateDateDisplay();
+        loadTransactionsByDate();
+    }
+
+    private void updateDateDisplay() {
+        if (filterMode.equals("daily")) {
+            tvDateDisplay.setText(new SimpleDateFormat("dd MMM yyyy", new Locale("id", "ID")).format(activeDate.getTime()));
+        } else if (filterMode.equals("weekly")) {
+            Calendar c = (Calendar) activeDate.clone();
+            c.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+            String startStr = new SimpleDateFormat("dd MMM", new Locale("id", "ID")).format(c.getTime());
+            c.add(Calendar.DAY_OF_MONTH, 6);
+            String endStr = new SimpleDateFormat("dd MMM yyyy", new Locale("id", "ID")).format(c.getTime());
+            tvDateDisplay.setText(startStr + " - " + endStr);
+        } else if (filterMode.equals("monthly")) {
+            tvDateDisplay.setText(new SimpleDateFormat("MMMM yyyy", new Locale("id", "ID")).format(activeDate.getTime()));
+        }
+        tvLabelOmzet.setText("OMZET KOTOR (" + tvDateDisplay.getText().toString().toUpperCase() + ")");
     }
 
     private void fetchBusinessData() {
@@ -169,17 +219,28 @@ public class ReportActivity extends AppCompatActivity {
     private void loadTransactionsByDate() {
         if (ownerId == null) return;
 
-        Calendar startOfDay = (Calendar) activeDate.clone();
-        startOfDay.set(Calendar.HOUR_OF_DAY, 0); startOfDay.set(Calendar.MINUTE, 0);
-        startOfDay.set(Calendar.SECOND, 0); startOfDay.set(Calendar.MILLISECOND, 0);
+        Calendar start = (Calendar) activeDate.clone();
+        Calendar end = (Calendar) activeDate.clone();
 
-        Calendar endOfDay = (Calendar) activeDate.clone();
-        endOfDay.set(Calendar.HOUR_OF_DAY, 23); endOfDay.set(Calendar.MINUTE, 59);
-        endOfDay.set(Calendar.SECOND, 59); endOfDay.set(Calendar.MILLISECOND, 999);
+        if (filterMode.equals("daily")) {
+            start.set(Calendar.HOUR_OF_DAY, 0); start.set(Calendar.MINUTE, 0); start.set(Calendar.SECOND, 0);
+            end.set(Calendar.HOUR_OF_DAY, 23); end.set(Calendar.MINUTE, 59); end.set(Calendar.SECOND, 59);
+        } else if (filterMode.equals("weekly")) {
+            start.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+            start.set(Calendar.HOUR_OF_DAY, 0); start.set(Calendar.MINUTE, 0); start.set(Calendar.SECOND, 0);
+            end = (Calendar) start.clone();
+            end.add(Calendar.DAY_OF_MONTH, 6);
+            end.set(Calendar.HOUR_OF_DAY, 23); end.set(Calendar.MINUTE, 59); end.set(Calendar.SECOND, 59);
+        } else if (filterMode.equals("monthly")) {
+            start.set(Calendar.DAY_OF_MONTH, 1);
+            start.set(Calendar.HOUR_OF_DAY, 0); start.set(Calendar.MINUTE, 0); start.set(Calendar.SECOND, 0);
+            end.set(Calendar.DAY_OF_MONTH, end.getActualMaximum(Calendar.DAY_OF_MONTH));
+            end.set(Calendar.HOUR_OF_DAY, 23); end.set(Calendar.MINUTE, 59); end.set(Calendar.SECOND, 59);
+        }
 
         db.collection("users").document(ownerId).collection("transactions")
-                .whereGreaterThanOrEqualTo("timestamp", startOfDay.getTimeInMillis())
-                .whereLessThanOrEqualTo("timestamp", endOfDay.getTimeInMillis())
+                .whereGreaterThanOrEqualTo("timestamp", start.getTimeInMillis())
+                .whereLessThanOrEqualTo("timestamp", end.getTimeInMillis())
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     rawTxList.clear();
@@ -189,15 +250,14 @@ public class ReportActivity extends AppCompatActivity {
                         rawTxList.add(tx);
                     }
                     applySearchFilter(); 
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Gagal memuat data", Toast.LENGTH_SHORT).show());
+                });
     }
 
     private void applySearchFilter() {
         filteredTxList.clear();
         String query = inputSearchTx.getText().toString().toLowerCase().trim();
 
-        int totalOmzet = 0, totalTunai = 0, totalHutang = 0, totalModal = 0;
+        int totalOmzet = 0, totalTunai = 0, totalQRIS = 0, totalHutang = 0, totalModal = 0, notaSukses = 0;
 
         for (TransactionModel tx : rawTxList) {
             boolean matchSearch = (tx.getBuyer() != null && tx.getBuyer().toLowerCase().contains(query)) || 
@@ -206,12 +266,14 @@ public class ReportActivity extends AppCompatActivity {
             if (matchSearch) {
                 filteredTxList.add(tx);
                 if (!"REFUNDED".equals(tx.getStatus())) {
+                    notaSukses++;
                     totalOmzet += tx.getTotal();
                     totalHutang += tx.getRemaining();
                     totalModal += tx.getCapitalTotal(); 
-                    if (tx.getMethod() != null && tx.getMethod().toUpperCase().contains("TUNAI")) {
-                        totalTunai += tx.getPaid();
-                    }
+                    
+                    String method = tx.getMethod() != null ? tx.getMethod().toUpperCase() : "";
+                    if (method.contains("TUNAI")) totalTunai += tx.getPaid();
+                    if (method.contains("QRIS")) totalQRIS += tx.getPaid();
                 }
             }
         }
@@ -220,24 +282,25 @@ public class ReportActivity extends AppCompatActivity {
 
         tvTotalOmzet.setText(formatRupiah.format(totalOmzet).replace("Rp", "Rp "));
         tvTotalTunai.setText(formatRupiah.format(totalTunai).replace("Rp", "Rp "));
+        tvTotalQRIS.setText(formatRupiah.format(totalQRIS).replace("Rp", "Rp "));
         tvTotalHutang.setText(formatRupiah.format(totalHutang).replace("Rp", "Rp "));
         tvTotalLaba.setText(formatRupiah.format(labaBersih).replace("Rp", "Rp "));
+        tvTotalNota.setText(notaSukses + " Nota");
 
         txAdapter.notifyDataSetChanged();
     }
 
     // ==========================================
-    // 🔥 FUNGSI BATALKAN TRANSAKSI (REFUND) 🔥
+    // 🔥 REFUND & PELUNASAN 🔥
     // ==========================================
     private void processRefund(TransactionModel tx) {
         new AlertDialog.Builder(this)
             .setTitle("Batalkan Transaksi?")
-            .setMessage("Stok barang akan dikembalikan ke sistem. Lanjutkan?")
+            .setMessage("Stok barang akan dikembalikan. Lanjutkan?")
             .setPositiveButton("Ya, Batalkan", (d, w) -> {
                 db.collection("users").document(ownerId).collection("transactions").document(tx.getId())
                   .update("status", "REFUNDED")
                   .addOnSuccessListener(aVoid -> {
-                      // Kembalikan stok ke masing-masing menu
                       if (tx.getItems() != null) {
                           for (MenuModel item : tx.getItems()) {
                               if (item.getId() != null && !item.getId().startsWith("MANUAL-")) {
@@ -247,24 +310,18 @@ public class ReportActivity extends AppCompatActivity {
                           }
                       }
                       Toast.makeText(this, "Transaksi Dibatalkan!", Toast.LENGTH_SHORT).show();
-                      loadTransactionsByDate(); // Refresh Layar
+                      loadTransactionsByDate(); 
                   });
-            })
-            .setNegativeButton("Tutup", null)
-            .show();
+            }).setNegativeButton("Tutup", null).show();
     }
 
-    // ==========================================
-    // 🔥 FUNGSI PELUNASAN HUTANG 🔥
-    // ==========================================
     private void processPayDebt(TransactionModel tx) {
         new AlertDialog.Builder(this)
             .setTitle("Pelunasan Hutang")
-            .setMessage("Sisa: Rp " + formatRupiah.format(tx.getRemaining()).replace("Rp", "") + "\nPilih metode pelunasan:")
+            .setMessage("Sisa: Rp " + formatRupiah.format(tx.getRemaining()).replace("Rp", "") + "\nPilih metode:")
             .setPositiveButton("TUNAI", (d, w) -> executePayDebt(tx, "TUNAI"))
             .setNegativeButton("QRIS", (d, w) -> executePayDebt(tx, "QRIS"))
-            .setNeutralButton("Batal", null)
-            .show();
+            .setNeutralButton("Batal", null).show();
     }
 
     private void executePayDebt(TransactionModel tx, String newMethod) {
@@ -272,98 +329,64 @@ public class ReportActivity extends AppCompatActivity {
         int updatedPaid = tx.getPaid() + tx.getRemaining();
 
         db.collection("users").document(ownerId).collection("transactions").document(tx.getId())
-          .update(
-              "remaining", 0,
-              "paid", updatedPaid,
-              "method", updatedMethod
-          )
+          .update("remaining", 0, "paid", updatedPaid, "method", updatedMethod)
           .addOnSuccessListener(aVoid -> {
               Toast.makeText(this, "Hutang Lunas!", Toast.LENGTH_SHORT).show();
-              loadTransactionsByDate(); // Refresh layar
+              loadTransactionsByDate(); 
           });
     }
 
     // ==========================================
-    // 🔥 FUNGSI EXPORT KE EXCEL (Format CSV) 🔥
+    // 🔥 EXPORT EXCEL & PDF 🔥
     // ==========================================
     private void exportToExcel() {
-        if (filteredTxList.isEmpty()) {
-            Toast.makeText(this, "Tidak ada data untuk di-export!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+        if (filteredTxList.isEmpty()) { Toast.makeText(this, "Data kosong!", Toast.LENGTH_SHORT).show(); return; }
         StringBuilder csv = new StringBuilder();
         csv.append("Tanggal,Pelanggan,Kasir,Metode,Total Belanja (Rp),Dibayar (Rp),Sisa Hutang (Rp),Status\n");
-
         for (TransactionModel t : filteredTxList) {
             String status = "LUNAS";
             if ("REFUNDED".equals(t.getStatus())) status = "BATAL";
             else if (t.getRemaining() > 0) status = "HUTANG";
-
-            String dateClean = t.getDate() != null ? t.getDate().replace(",", " ") : "";
-            String buyerClean = t.getBuyer() != null ? t.getBuyer() : "Umum";
-            String operatorClean = t.getOperatorName() != null ? t.getOperatorName() : "Admin";
-            String methodClean = t.getMethod() != null ? t.getMethod() : "TUNAI";
-
-            csv.append(dateClean).append(",");
-            csv.append(buyerClean).append(",");
-            csv.append(operatorClean).append(",");
-            csv.append(methodClean).append(",");
-            csv.append(t.getTotal()).append(",");
-            csv.append(t.getPaid()).append(",");
-            csv.append(t.getRemaining()).append(",");
-            csv.append(status).append("\n");
+            csv.append(t.getDate() != null ? t.getDate().replace(",", " ") : "").append(",")
+               .append(t.getBuyer() != null ? t.getBuyer() : "Umum").append(",")
+               .append(t.getOperatorName() != null ? t.getOperatorName() : "Admin").append(",")
+               .append(t.getMethod() != null ? t.getMethod() : "TUNAI").append(",")
+               .append(t.getTotal()).append(",").append(t.getPaid()).append(",")
+               .append(t.getRemaining()).append(",").append(status).append("\n");
         }
-
         pendingCsvContent = csv.toString();
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("text/comma-separated-values");
-        intent.putExtra(Intent.EXTRA_TITLE, "Laporan_Penjualan_" + System.currentTimeMillis() + ".csv");
+        intent.putExtra(Intent.EXTRA_TITLE, "Laporan_ISZI_" + System.currentTimeMillis() + ".csv");
         csvSaveLauncher.launch(intent);
     }
 
-    // ==========================================
-    // 🔥 FUNGSI EXPORT KE PDF 🔥
-    // ==========================================
     private void exportToPDF() {
-        if (filteredTxList.isEmpty()) {
-            Toast.makeText(this, "Tidak ada data untuk di-export!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+        if (filteredTxList.isEmpty()) { Toast.makeText(this, "Data kosong!", Toast.LENGTH_SHORT).show(); return; }
         Toast.makeText(this, "Menyiapkan PDF...", Toast.LENGTH_SHORT).show();
-
         StringBuilder html = new StringBuilder();
-        html.append("<html><body style='font-family:sans-serif; padding:20px; color:#333;'>");
-        html.append("<h2 style='text-align:center;'>Laporan Penjualan ").append(shopName.toUpperCase()).append("</h2>");
-        html.append("<p style='text-align:center; color:#666;'>Periode: ").append(tvDateDisplay.getText().toString()).append("</p>");
-        
-        html.append("<table style='width:100%; border-collapse:collapse; margin-top:20px;' border='1'>");
-        html.append("<tr style='background-color:#f1f5f9; text-align:left;'>");
-        html.append("<th style='padding:10px;'>Tanggal</th>");
-        html.append("<th style='padding:10px;'>Pelanggan</th>");
-        html.append("<th style='padding:10px;'>Metode</th>");
-        html.append("<th style='padding:10px; text-align:right;'>Total</th>");
-        html.append("<th style='padding:10px;'>Status</th>");
-        html.append("</tr>");
+        html.append("<html><body style='font-family:sans-serif; padding:20px; color:#333;'>")
+            .append("<h2 style='text-align:center;'>Laporan Penjualan ").append(shopName.toUpperCase()).append("</h2>")
+            .append("<p style='text-align:center; color:#666;'>Periode: ").append(tvDateDisplay.getText().toString()).append("</p>")
+            .append("<table style='width:100%; border-collapse:collapse; margin-top:20px;' border='1'>")
+            .append("<tr style='background-color:#f1f5f9; text-align:left;'>")
+            .append("<th style='padding:10px;'>Tanggal</th><th style='padding:10px;'>Pelanggan</th>")
+            .append("<th style='padding:10px;'>Metode</th><th style='padding:10px; text-align:right;'>Total</th>")
+            .append("<th style='padding:10px;'>Status</th></tr>");
 
         for (TransactionModel t : filteredTxList) {
-            String status = "LUNAS";
-            String colorStatus = "#10B981"; 
-            if ("REFUNDED".equals(t.getStatus())) {
-                status = "BATAL"; colorStatus = "#9CA3AF"; 
-            } else if (t.getRemaining() > 0) {
-                status = "HUTANG"; colorStatus = "#F59E0B"; 
-            }
+            String status = "LUNAS"; String colorStatus = "#10B981"; 
+            if ("REFUNDED".equals(t.getStatus())) { status = "BATAL"; colorStatus = "#9CA3AF"; } 
+            else if (t.getRemaining() > 0) { status = "HUTANG"; colorStatus = "#F59E0B"; }
 
-            html.append("<tr>");
-            html.append("<td style='padding:8px;'>").append(t.getDate() != null ? t.getDate() : "-").append("</td>");
-            html.append("<td style='padding:8px;'>").append(t.getBuyer() != null ? t.getBuyer() : "Umum").append("</td>");
-            html.append("<td style='padding:8px;'>").append(t.getMethod() != null ? t.getMethod() : "TUNAI").append("</td>");
-            html.append("<td style='padding:8px; text-align:right;'>Rp ").append(formatRupiah.format(t.getTotal()).replace("Rp","")).append("</td>");
-            html.append("<td style='padding:8px; color:").append(colorStatus).append("; font-weight:bold;'>").append(status).append("</td>");
-            html.append("</tr>");
+            html.append("<tr>")
+                .append("<td style='padding:8px;'>").append(t.getDate() != null ? t.getDate() : "-").append("</td>")
+                .append("<td style='padding:8px;'>").append(t.getBuyer() != null ? t.getBuyer() : "Umum").append("</td>")
+                .append("<td style='padding:8px;'>").append(t.getMethod() != null ? t.getMethod() : "TUNAI").append("</td>")
+                .append("<td style='padding:8px; text-align:right;'>Rp ").append(formatRupiah.format(t.getTotal()).replace("Rp","")).append("</td>")
+                .append("<td style='padding:8px; color:").append(colorStatus).append("; font-weight:bold;'>").append(status).append("</td>")
+                .append("</tr>");
         }
         html.append("</table></body></html>");
 
@@ -372,9 +395,7 @@ public class ReportActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
-                String jobName = "Laporan_ISZI_" + System.currentTimeMillis();
-                PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter(jobName);
-                printManager.print(jobName, printAdapter, new PrintAttributes.Builder().build());
+                printManager.print("Laporan_ISZI", webView.createPrintDocumentAdapter("Laporan_ISZI"), new PrintAttributes.Builder().build());
             }
         });
         webView.loadDataWithBaseURL(null, html.toString(), "text/HTML", "UTF-8", null);
