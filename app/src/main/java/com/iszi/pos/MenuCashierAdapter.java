@@ -1,5 +1,6 @@
 package com.iszi.pos;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,16 +40,20 @@ public class MenuCashierAdapter extends RecyclerView.Adapter<MenuCashierAdapter.
         
         if (menu.getStock() > 0) {
             holder.tvMenuStock.setText("Stok: " + menu.getStock());
-            holder.tvMenuStock.setTextColor(android.graphics.Color.parseColor("#9CA3AF"));
+            holder.tvMenuStock.setTextColor(Color.parseColor("#9CA3AF"));
         } else {
             holder.tvMenuStock.setText("Habis!");
-            holder.tvMenuStock.setTextColor(android.graphics.Color.parseColor("#EF4444"));
+            holder.tvMenuStock.setTextColor(Color.parseColor("#EF4444"));
         }
 
-        // Dummy Ikon
         holder.imgMenu.setImageResource(android.R.drawable.ic_menu_gallery);
         
-        holder.itemView.setOnClickListener(v -> listener.onMenuClick(menu));
+        holder.itemView.setOnClickListener(v -> {
+            // Cerdas: Hanya bisa diklik masuk keranjang jika stok masih ada
+            if (menu.getStock() > 0) {
+                listener.onMenuClick(menu);
+            }
+        });
     }
 
     @Override
