@@ -1,6 +1,5 @@
 package com.iszi.pos;
 
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class CashierMenuAdapter extends RecyclerView.Adapter<CashierMenuAdapter.ViewHolder> {
+    
     private List<MenuModel> menuList;
     private OnMenuClickListener listener;
     private NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
@@ -26,14 +26,18 @@ public class CashierMenuAdapter extends RecyclerView.Adapter<CashierMenuAdapter.
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_1, parent, false);
+        // 🔥 INI PERUBAHANNYA: Memanggil desain Kartu (Card) yang baru 🔥
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_menu_cashier, parent, false);
         return new ViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         MenuModel menu = menuList.get(position);
-        holder.tvTitle.setText(menu.getName() + "\n" + formatRupiah.format(menu.getPrice()).replace("Rp", "Rp "));
+        
+        holder.tvMenuName.setText(menu.getName());
+        holder.tvMenuPrice.setText(formatRupiah.format(menu.getPrice()).replace("Rp", "Rp "));
+        
         holder.itemView.setOnClickListener(v -> listener.onMenuClick(menu));
     }
 
@@ -41,11 +45,13 @@ public class CashierMenuAdapter extends RecyclerView.Adapter<CashierMenuAdapter.
     public int getItemCount() { return menuList.size(); }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle;
+        TextView tvMenuName, tvMenuPrice;
+        
         public ViewHolder(View itemView) {
             super(itemView);
-            tvTitle = itemView.findViewById(android.R.id.text1);
-            tvTitle.setTextColor(Color.WHITE); // Teks putih agar terlihat di background gelap
+            // Menyesuaikan ID dengan di item_menu_cashier.xml
+            tvMenuName = itemView.findViewById(R.id.tvMenuName);
+            tvMenuPrice = itemView.findViewById(R.id.tvMenuPrice);
         }
     }
 }
