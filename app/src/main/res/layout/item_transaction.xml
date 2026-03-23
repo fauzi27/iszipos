@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp"
+    app:cardBackgroundColor="#1E293B"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        
+        <View
+            android:id="@+id/viewStatusColor"
+            android:layout_width="4dp"
+            android:layout_height="match_parent"
+            android:background="#22C55E"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp">
+
+            <LinearLayout
+                android:id="@+id/boxLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:orientation="vertical">
+                
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    
+                    <TextView
+                        android:id="@+id/tvTxBuyer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nama Pembeli"
+                        android:textColor="#FFFFFF"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginEnd="8dp"/>
+                        
+                    <TextView
+                        android:id="@+id/badgeSync"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="UPLOADED"
+                        android:textSize="8sp"
+                        android:textStyle="bold"
+                        android:textColor="#166534"
+                        android:background="@drawable/bg_circle_button"
+                        android:backgroundTint="#DCFCE3"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="2dp"
+                        android:layout_marginEnd="4dp"/>
+                        
+                    <TextView
+                        android:id="@+id/badgeHutang"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="HUTANG"
+                        android:textSize="8sp"
+                        android:textStyle="bold"
+                        android:textColor="#D97706"
+                        android:background="@drawable/bg_circle_button"
+                        android:backgroundTint="#FEF3C7"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="2dp"
+                        android:visibility="gone"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvTxDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="12 Okt 2026, 14:30"
+                    android:textColor="#9CA3AF"
+                    android:textSize="12sp"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:orientation="vertical"
+                android:gravity="end">
+                
+                <TextView
+                    android:id="@+id/tvTxTotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rp 0"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+                    
+                <TextView
+                    android:id="@+id/tvTxMethod"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TUNAI"
+                    android:textColor="#9CA3AF"
+                    android:textSize="10sp"
+                    android:layout_marginTop="2dp"/>
+            </LinearLayout>
+
+        </RelativeLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
