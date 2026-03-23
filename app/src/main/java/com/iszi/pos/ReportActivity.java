@@ -12,6 +12,7 @@ import android.print.PrintDocumentAdapter;
 import android.print.PrintManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
@@ -36,6 +37,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -157,7 +159,6 @@ public class ReportActivity extends AppCompatActivity {
     private void setFilterMode(String mode) {
         filterMode = mode;
         
-        // Reset warna tombol
         int colorActiveBg = Color.parseColor("#3B82F6");
         int colorInactiveBg = Color.parseColor("#334155");
         int colorActiveText = Color.parseColor("#FFFFFF");
@@ -249,6 +250,10 @@ public class ReportActivity extends AppCompatActivity {
                         tx.setId(doc.getId());
                         rawTxList.add(tx);
                     }
+                    
+                    // 🔥 MANTRA PENGURUT: TRANSAKSI TERBARU DI PALING ATAS 🔥
+                    Collections.sort(rawTxList, (t1, t2) -> Long.compare(t2.getTimestamp(), t1.getTimestamp()));
+
                     applySearchFilter(); 
                 });
     }
