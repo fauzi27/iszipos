@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp"
+        android:padding="16dp"
         android:gravity="center_vertical"
         android:background="#1E293B">
 
@@ -26,20 +26,40 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Laporan Penjualan"
+            android:text="Laporan"
             android:textColor="#FFFFFF"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginStart="8dp"/>
 
-        <ImageButton
-            android:id="@+id/btnSyncCloud"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/btnExportPdf"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:background="@drawable/bg_circle_button"
-            android:backgroundTint="#1D4ED8"
-            android:src="@android:drawable/stat_notify_sync"
-            app:tint="#FFFFFF"/>
+            app:cardCornerRadius="18dp"
+            app:cardBackgroundColor="#6366F1"
+            android:layout_marginEnd="8dp">
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:src="@android:drawable/ic_menu_agenda"
+                app:tint="#FFFFFF"/>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/btnExportExcel"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            app:cardCornerRadius="18dp"
+            app:cardBackgroundColor="#10B981">
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:src="@android:drawable/ic_menu_save"
+                app:tint="#FFFFFF"/>
+        </androidx.cardview.widget.CardView>
     </LinearLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -50,29 +70,33 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:background="@drawable/bg_input_modern"
                 android:gravity="center"
                 android:padding="12dp"
-                android:background="#1E293B">
+                android:layout_marginBottom="16dp">
                 
                 <ImageButton
                     android:id="@+id/btnDatePrev"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="@drawable/bg_circle_button"
+                    android:backgroundTint="#3B82F6"
                     android:src="@android:drawable/ic_media_previous"
-                    app:tint="#9CA3AF"/>
+                    app:tint="#FFFFFF"/>
                     
                 <TextView
                     android:id="@+id/tvDateDisplay"
-                    android:layout_width="150dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Hari Ini"
+                    android:layout_weight="1"
+                    android:text="24 Mar 2026"
                     android:textColor="#FFFFFF"
                     android:textSize="16sp"
                     android:textStyle="bold"
@@ -82,117 +106,164 @@
                     android:id="@+id/btnDateNext"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:background="@drawable/bg_circle_button"
+                    android:backgroundTint="#3B82F6"
                     android:src="@android:drawable/ic_media_next"
-                    app:tint="#9CA3AF"/>
+                    app:tint="#FFFFFF"/>
             </LinearLayout>
-
-            <GridLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:columnCount="2"
-                android:padding="12dp">
-                
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:orientation="vertical"
-                    android:background="@drawable/bg_badge_kasir"
-                    android:backgroundTint="#1E293B"
-                    android:padding="12dp"
-                    android:layout_margin="4dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Omzet Kotor" android:textColor="#9CA3AF" android:textSize="12sp"/>
-                    <TextView android:id="@+id/tvTotalOmzet" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 0" android:textColor="#FFFFFF" android:textSize="18sp" android:textStyle="bold"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:orientation="vertical"
-                    android:background="@drawable/bg_badge_kasir"
-                    android:backgroundTint="#064E3B"
-                    android:padding="12dp"
-                    android:layout_margin="4dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Laba Bersih" android:textColor="#34D399" android:textSize="12sp"/>
-                    <TextView android:id="@+id/tvTotalLaba" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 0" android:textColor="#10B981" android:textSize="18sp" android:textStyle="bold"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:orientation="vertical"
-                    android:background="@drawable/bg_badge_kasir"
-                    android:backgroundTint="#1E293B"
-                    android:padding="12dp"
-                    android:layout_margin="4dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tunai" android:textColor="#9CA3AF" android:textSize="12sp"/>
-                    <TextView android:id="@+id/tvTotalTunai" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 0" android:textColor="#FFFFFF" android:textSize="14sp" android:textStyle="bold"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:orientation="vertical"
-                    android:background="@drawable/bg_badge_kasir"
-                    android:backgroundTint="#7F1D1D"
-                    android:padding="12dp"
-                    android:layout_margin="4dp">
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sisa Hutang" android:textColor="#FCA5A5" android:textSize="12sp"/>
-                    <TextView android:id="@+id/tvTotalHutang" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 0" android:textColor="#EF4444" android:textSize="14sp" android:textStyle="bold"/>
-                </LinearLayout>
-            </GridLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingHorizontal="16dp"
-                android:paddingBottom="8dp">
-                
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnExportExcel"
-                    android:layout_width="0dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_input_modern"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp">
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Excel"
-                    app:backgroundTint="#166534"
-                    app:icon="@android:drawable/ic_menu_save"
-                    android:layout_marginEnd="4dp"/>
+                    android:scrollbars="none"
+                    android:layout_marginBottom="12dp">
                     
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnExportPdf"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="PDF"
-                    app:backgroundTint="#991B1B"
-                    app:icon="@android:drawable/ic_menu_view"
-                    android:layout_marginStart="4dp"/>
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnFilterDaily"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="Harian"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12sp"
+                            app:backgroundTint="#3B82F6"
+                            app:cornerRadius="20dp"
+                            android:layout_marginEnd="8dp"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnFilterWeekly"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="Mingguan"
+                            android:textColor="#9CA3AF"
+                            android:textSize="12sp"
+                            app:backgroundTint="#334155"
+                            app:cornerRadius="20dp"
+                            android:layout_marginEnd="8dp"/>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnFilterMonthly"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="Bulanan"
+                            android:textColor="#9CA3AF"
+                            android:textSize="12sp"
+                            app:backgroundTint="#334155"
+                            app:cornerRadius="20dp"
+                            android:layout_marginEnd="8dp"/>
+                            
+                        <ImageButton
+                            android:id="@+id/btnSyncCloud"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:background="@drawable/bg_circle_button"
+                            android:backgroundTint="#3B82F6"
+                            android:src="@android:drawable/stat_notify_sync"
+                            app:tint="#FFFFFF"/>
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <EditText
+                    android:id="@+id/inputSearchTx"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp"
+                    android:background="@drawable/bg_circle_button"
+                    android:backgroundTint="#0F172A"
+                    android:textColor="#FFFFFF"
+                    android:textColorHint="#475569"
+                    android:paddingHorizontal="16dp"
+                    android:hint="Cari pelanggan, metode..."/>
             </LinearLayout>
 
-            <EditText
-                android:id="@+id/inputSearchTx"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="45dp"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="8dp"
-                android:background="@drawable/bg_circle_button"
-                android:backgroundTint="#1E293B"
-                android:textColor="#FFFFFF"
-                android:textColorHint="#9CA3AF"
-                android:paddingHorizontal="16dp"
-                android:hint="Cari nama atau metode..."/>
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_input_modern"
+                android:padding="20dp"
+                android:layout_marginBottom="16dp"
+                android:clipToPadding="false">
+
+                <View
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginEnd="-10dp"
+                    android:layout_marginTop="-10dp"
+                    android:background="@drawable/bg_circle_button"
+                    android:backgroundTint="#4338CA"
+                    android:alpha="0.8"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvLabelOmzet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="OMZET KOTOR"
+                        android:textColor="#9CA3AF"
+                        android:textSize="10sp"/>
+                    <TextView
+                        android:id="@+id/tvTotalOmzet"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Rp 0"
+                        android:textColor="#FFFFFF"
+                        android:textSize="32sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="20dp"/>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#334155" android:layout_marginBottom="16dp"/>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2" android:layout_marginBottom="12dp">
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Masuk Tunai" android:textColor="#9CA3AF" android:textSize="12sp"/>
+                            <TextView android:id="@+id/tvTotalTunai" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 0" android:textColor="#FFFFFF" android:textSize="14sp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Masuk QRIS" android:textColor="#9CA3AF" android:textSize="12sp"/>
+                            <TextView android:id="@+id/tvTotalQRIS" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 0" android:textColor="#FFFFFF" android:textSize="14sp" android:textStyle="bold"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2" android:layout_marginBottom="16dp">
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Sisa Hutang" android:textColor="#FCA5A5" android:textSize="12sp"/>
+                            <TextView android:id="@+id/tvTotalHutang" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 0" android:textColor="#EF4444" android:textSize="14sp" android:textStyle="bold"/>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nota Sukses" android:textColor="#9CA3AF" android:textSize="12sp"/>
+                            <TextView android:id="@+id/tvTotalNota" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 Nota" android:textColor="#FFFFFF" android:textSize="14sp" android:textStyle="bold"/>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#334155" android:layout_marginBottom="16dp"/>
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Laba / Keuntungan Bersih" android:textColor="#9CA3AF" android:textSize="10sp"/>
+                    <TextView android:id="@+id/tvTotalLaba" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 0" android:textColor="#10B981" android:textSize="18sp" android:textStyle="bold"/>
+                </LinearLayout>
+            </RelativeLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvTransactions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
-                android:padding="8dp"/>
+                android:nestedScrollingEnabled="false"/>
                 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
