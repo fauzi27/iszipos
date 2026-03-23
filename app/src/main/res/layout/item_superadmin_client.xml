@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="4dp"
+    android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="#1E293B"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:justifyContent="space-between">
+            <TextView
+                android:id="@+id/tvClientName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Nama Toko"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/tvClientEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="email@toko.com"
+                android:textColor="#9CA3AF"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical">
+            
+            <TextView
+                android:id="@+id/badgePlan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="👑 PRO"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#FEF08A"
+                android:background="@drawable/bg_circle_button"
+                android:backgroundTint="#854D0E"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:layout_marginEnd="6dp"/>
+                
+            <TextView
+                android:id="@+id/badgeStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🟢 ACTIVE"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="#A7F3D0"
+                android:background="@drawable/bg_circle_button"
+                android:backgroundTint="#065F46"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="2dp"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/tvClientExpiry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📅 Lifetime"
+                android:textColor="#CBD5E1"
+                android:textSize="10sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_circle_button"
+            android:backgroundTint="#0F172A"
+            android:padding="8dp">
+            
+            <TextView
+                android:id="@+id/tvUsageTx"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="🧾 Nota: 0/Unl"
+                android:textColor="#94A3B8"
+                android:textSize="11sp"/>
+                
+            <TextView
+                android:id="@+id/tvUsageMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🍔 Menu: 0/Unl"
+                android:textColor="#94A3B8"
+                android:textSize="11sp"/>
+        </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#334155" android:layout_marginVertical="12dp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Aksi God Mode:" android:textColor="#64748B" android:textSize="10sp" android:layout_marginBottom="6dp"/>
+        
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+            
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGodPlan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="Ubah Plan"
+                    android:textSize="10sp"
+                    app:backgroundTint="#B45309"
+                    app:cornerRadius="6dp"
+                    android:layout_marginEnd="6dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGodInject"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="Inject Data"
+                    android:textSize="10sp"
+                    app:backgroundTint="#4C1D95"
+                    app:cornerRadius="6dp"
+                    android:layout_marginEnd="6dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGodEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="Atur Limit"
+                    android:textSize="10sp"
+                    app:backgroundTint="#1E3A8A"
+                    app:cornerRadius="6dp"
+                    android:layout_marginEnd="6dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGodSuspend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="Suspend"
+                    android:textSize="10sp"
+                    app:backgroundTint="#7C2D12"
+                    app:cornerRadius="6dp"
+                    android:layout_marginEnd="6dp"/>
+
+                <ImageButton
+                    android:id="@+id/btnGodDelete"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_circle_button"
+                    android:backgroundTint="#7F1D1D"
+                    android:src="@android:drawable/ic_delete"
+                    app:tint="#FCA5A5"/>
+            </LinearLayout>
+        </HorizontalScrollView>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
