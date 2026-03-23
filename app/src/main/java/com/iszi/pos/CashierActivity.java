@@ -88,7 +88,8 @@ public class CashierActivity extends AppCompatActivity {
         inputSearchMenu = findViewById(R.id.inputSearchMenu);
 
         // Setup RecyclerView Menu (Grid 2 Kolom)
-        menuAdapter = new MenuAdapter(filteredMenuList, menu -> addToCart(menu));
+CashierMenuAdapter menuAdapter = new CashierMenuAdapter(filteredMenuList, menu -> addToCart(menu));
+rvMenuKasir.setAdapter(menuAdapter);
         rvMenuKasir.setLayoutManager(new GridLayoutManager(this, 2));
         rvMenuKasir.setAdapter(menuAdapter);
     }
