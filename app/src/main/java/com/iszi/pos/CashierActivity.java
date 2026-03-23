@@ -1,12 +1,13 @@
 package com.iszi.pos;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -48,16 +49,18 @@ public class CashierActivity extends AppCompatActivity {
     private RecyclerView rvMenus, rvCart;
     private TextView tvCartTotal, tvHoldBadge;
     private EditText inputSearchMenu, inputBuyerName;
-    private LinearLayout btnResetCart, btnHold, btnManual;
+    private LinearLayout btnResetCart, btnHold, btnManual, containerCategories;
     private MaterialButton btnCheckout;
-    private android.widget.ImageButton btnHoldList; // Sesuai XML milikmu
+    private android.widget.ImageButton btnHoldList;
 
     private List<MenuModel> masterMenuList = new ArrayList<>();
     private List<MenuModel> filteredMenuList = new ArrayList<>();
     private List<MenuModel> cartList = new ArrayList<>(); 
-    
-    // 🔥 Kantong Penyimpanan Sementara (Fitur Gantung)
     private List<HoldOrderModel> holdList = new ArrayList<>();
+    
+    // 🔥 Variabel untuk Filter Kategori
+    private List<String> categoryList = new ArrayList<>();
+    private String activeCategory = "all";
 
     private MenuCashierAdapter menuAdapter;
     private CashierCartAdapter cartAdapter;
@@ -78,6 +81,7 @@ public class CashierActivity extends AppCompatActivity {
         setupListeners();
         
         fetchBusinessData();
+        fetchCategories(); // 🔥 Panggil Kategori
         fetchMenus();
     }
 
@@ -93,6 +97,7 @@ public class CashierActivity extends AppCompatActivity {
         btnHold = findViewById(R.id.btnHold);
         btnManual = findViewById(R.id.btnManual);
         btnHoldList = findViewById(R.id.btnHoldList);
+        containerCategories = findViewById(R.id.containerCategories); // Menyambungkan ID Kategori
 
         menuAdapter = new MenuCashierAdapter(filteredMenuList, menu -> addToCart(menu));
         rvMenus.setLayoutManager(new GridLayoutManager(this, 2));
@@ -105,23 +110,8 @@ public class CashierActivity extends AppCompatActivity {
 
     private void setupListeners() {
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-
-        btnResetCart.setOnClickListener(v -> {
-            cartList.clear();
-            cartAdapter.notifyDataSetChanged();
-            updateCartTotal();
-            inputBuyerName.setText("");
-        });
-
-        btnCheckout.setOnClickListener(v -> {
-            if (cartList.isEmpty()) {
-                Toast.makeText(this, "Keranjang kosong!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            showPaymentDialog();
-        });
-
-        // 🔥 AKTIVASI TOMBOL MANUAL & GANTUNG
+        btnResetCart.setOnClickListener(v -> { cartList.clear(); cartAdapter.notifyDataSetChanged(); updateCartTotal(); inputBuyerName.setText(""); });
+        btnCheckout.setOnClickListener(v -> { if (cartList.isEmpty()) { Toast.makeText(this, "Keranjang kosong!", Toast.LENGTH_SHORT).show(); return; } showPaymentDialog(); });
         btnManual.setOnClickListener(v -> showManualItemDialog());
         btnHold.setOnClickListener(v -> holdCurrentTransaction());
         btnHoldList.setOnClickListener(v -> showHoldListDialog());
@@ -134,136 +124,75 @@ public class CashierActivity extends AppCompatActivity {
     }
 
     // ==========================================
-    // 🔥 1. FITUR ITEM MANUAL (OPSI 2 POS MODERN)
+    // 🔥 1. FUNGSI KATEGORI DINAMIS
     // ==========================================
-    private void showManualItemDialog() {
-        Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_manual_item);
-        
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+    private void fetchCategories() {
+        if (ownerId == null) return;
+        db.collection("users").document(ownerId).collection("categories")
+            .get().addOnSuccessListener(snapshots -> {
+                categoryList.clear();
+                categoryList.add("all"); 
+                for (QueryDocumentSnapshot doc : snapshots) {
+                    if (doc.contains("name")) {
+                        categoryList.add(doc.getString("name").toLowerCase());
+                    }
+                }
+                renderCategoryButtons();
+            });
+    }
 
-        EditText inputName = dialog.findViewById(R.id.inputManualName);
-        EditText inputPrice = dialog.findViewById(R.id.inputManualPrice);
-        MaterialButton btnCancel = dialog.findViewById(R.id.btnCancelManual);
-        MaterialButton btnAdd = dialog.findViewById(R.id.btnAddManual);
+    private void renderCategoryButtons() {
+        containerCategories.removeAllViews();
+        LayoutInflater inflater = LayoutInflater.from(this);
 
-        // Auto-focus ke input harga saat popup muncul
-        inputPrice.requestFocus();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        for (String cat : categoryList) {
+            View badgeView = inflater.inflate(R.layout.item_category_badge, containerCategories, false);
+            LinearLayout layout = badgeView.findViewById(R.id.badgeLayout);
+            TextView tvName = badgeView.findViewById(R.id.tvCategoryName);
 
-        btnCancel.setOnClickListener(v -> dialog.dismiss());
+            String displayName = cat.equals("all") ? "Semua" : cat.substring(0, 1).toUpperCase() + cat.substring(1);
+            tvName.setText(displayName);
 
-        btnAdd.setOnClickListener(v -> {
-            String priceStr = inputPrice.getText().toString();
-            if (priceStr.isEmpty()) {
-                Toast.makeText(this, "Harga wajib diisi!", Toast.LENGTH_SHORT).show();
-                return;
+            if (activeCategory.equals(cat)) {
+                layout.setBackgroundResource(R.drawable.bg_circle_button);
+                layout.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#3B82F6")));
+                tvName.setTextColor(Color.WHITE);
+            } else {
+                layout.setBackgroundResource(R.drawable.bg_input_modern);
+                layout.setBackgroundTintList(null);
+                tvName.setTextColor(Color.parseColor("#9CA3AF"));
             }
 
-            int price = Integer.parseInt(priceStr);
-            String name = inputName.getText().toString().trim();
-            if (name.isEmpty()) name = "Item Manual";
-
-            // Buat menu fiktif dan masukkan ke keranjang
-            String manualId = "MANUAL-" + System.currentTimeMillis();
-            MenuModel manualItem = new MenuModel(manualId, name, "MANUAL", price, 1, 0);
-            
-            cartList.add(manualItem);
-            cartAdapter.notifyDataSetChanged();
-            updateCartTotal();
-            
-            dialog.dismiss();
-        });
-
-        dialog.show();
-    }
-
-    // ==========================================
-    // 🔥 2. FITUR GANTUNG (HOLD TRANSACTION)
-    // ==========================================
-    private void holdCurrentTransaction() {
-        if (cartList.isEmpty()) {
-            Toast.makeText(this, "Tidak ada pesanan untuk digantung!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String buyer = inputBuyerName.getText().toString().trim();
-        if (buyer.isEmpty()) buyer = "Pelanggan " + (holdList.size() + 1);
-
-        // Bungkus list saat ini agar tidak terikat referensi lama
-        List<MenuModel> savedCart = new ArrayList<>(cartList);
-        
-        HoldOrderModel heldOrder = new HoldOrderModel(buyer, System.currentTimeMillis(), savedCart);
-        holdList.add(heldOrder);
-
-        // Kosongkan Kasir
-        cartList.clear();
-        cartAdapter.notifyDataSetChanged();
-        updateCartTotal();
-        inputBuyerName.setText("");
-
-        // Update Lencana (Badge)
-        tvHoldBadge.setText("(" + holdList.size() + ")");
-        Toast.makeText(this, "Pesanan " + buyer + " berhasil ditahan.", Toast.LENGTH_SHORT).show();
-    }
-
-    private void showHoldListDialog() {
-        if (holdList.isEmpty()) {
-            Toast.makeText(this, "Tidak ada antrean pesanan.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_hold_list);
-        
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
-
-        LinearLayout container = dialog.findViewById(R.id.containerHoldItems);
-        MaterialButton btnClose = dialog.findViewById(R.id.btnCloseHoldList);
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", new Locale("id", "ID"));
-
-        for (int i = 0; i < holdList.size(); i++) {
-            final int index = i;
-            HoldOrderModel order = holdList.get(i);
-
-            // Bikin Kartu Antrean secara Dinamis
-            TextView tvOrder = new TextView(this);
-            tvOrder.setText(order.getBuyerName() + " (" + order.getItems().size() + " Item) - Jam: " + timeFormat.format(new Date(order.getTimestamp())));
-            tvOrder.setTextColor(Color.WHITE);
-            tvOrder.setTextSize(14f);
-            tvOrder.setPadding(30, 40, 30, 40);
-            
-            // Background selang-seling agar rapi
-            if (i % 2 == 0) tvOrder.setBackgroundColor(Color.parseColor("#334155"));
-            else tvOrder.setBackgroundColor(Color.parseColor("#1E293B"));
-
-            tvOrder.setOnClickListener(v -> {
-                // Pindahkan kembali ke Kasir Utama
-                inputBuyerName.setText(order.getBuyerName());
-                cartList.clear();
-                cartList.addAll(order.getItems());
-                cartAdapter.notifyDataSetChanged();
-                updateCartTotal();
-
-                // Hapus dari daftar antrean
-                holdList.remove(index);
-                tvHoldBadge.setText("(" + holdList.size() + ")");
-                dialog.dismiss();
+            layout.setOnClickListener(v -> {
+                activeCategory = cat;
+                renderCategoryButtons(); 
+                applyFilter(); 
             });
 
-            container.addView(tvOrder);
+            containerCategories.addView(badgeView);
         }
-
-        btnClose.setOnClickListener(v -> dialog.dismiss());
-        dialog.show();
     }
 
     // ==========================================
-    // KODE BAWAAN (TIDAK BERUBAH)
+    // 🔥 2. FILTER MENU BERSAMAAN (Pencarian + Kategori)
+    // ==========================================
+    private void applyFilter() {
+        filteredMenuList.clear();
+        String querySearch = inputSearchMenu.getText().toString().toLowerCase().trim();
+        
+        for (MenuModel m : masterMenuList) {
+            boolean matchSearch = m.getName().toLowerCase().contains(querySearch);
+            boolean matchCat = activeCategory.equals("all") || (m.getCategory() != null && m.getCategory().toLowerCase().equals(activeCategory));
+            
+            if (matchSearch && matchCat) {
+                filteredMenuList.add(m);
+            }
+        }
+        menuAdapter.notifyDataSetChanged();
+    }
+
+    // ==========================================
+    // KODE BAWAAN (Pengambilan Data & Keranjang)
     // ==========================================
     private void fetchBusinessData() {
         if (ownerId == null) return;
@@ -292,17 +221,6 @@ public class CashierActivity extends AppCompatActivity {
             });
     }
 
-    private void applyFilter() {
-        filteredMenuList.clear();
-        String query = inputSearchMenu.getText().toString().toLowerCase().trim();
-        for (MenuModel m : masterMenuList) {
-            if (m.getName().toLowerCase().contains(query)) {
-                filteredMenuList.add(m);
-            }
-        }
-        menuAdapter.notifyDataSetChanged();
-    }
-
     private void addToCart(MenuModel menu) {
         boolean exists = false;
         for (MenuModel item : cartList) {
@@ -327,7 +245,86 @@ public class CashierActivity extends AppCompatActivity {
         }
         tvCartTotal.setText(formatRupiah.format(totalBelanja).replace("Rp", "Rp "));
     }
-    // 🔥 UPDATE MODAL PEMBAYARAN: Menampilkan Rincian Belanjaan 🔥
+
+    // ==========================================
+    // 🔥 3. FITUR MANUAL & GANTUNG
+    // ==========================================
+    private void showManualItemDialog() {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_manual_item);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+
+        EditText inputName = dialog.findViewById(R.id.inputManualName);
+        EditText inputPrice = dialog.findViewById(R.id.inputManualPrice);
+        MaterialButton btnCancel = dialog.findViewById(R.id.btnCancelManual);
+        MaterialButton btnAdd = dialog.findViewById(R.id.btnAddManual);
+
+        inputPrice.requestFocus();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnAdd.setOnClickListener(v -> {
+            String priceStr = inputPrice.getText().toString();
+            if (priceStr.isEmpty()) { Toast.makeText(this, "Harga wajib diisi!", Toast.LENGTH_SHORT).show(); return; }
+            int price = Integer.parseInt(priceStr);
+            String name = inputName.getText().toString().trim();
+            if (name.isEmpty()) name = "Item Manual";
+            
+            MenuModel manualItem = new MenuModel("MANUAL-" + System.currentTimeMillis(), name, "MANUAL", price, 1, 0);
+            cartList.add(manualItem);
+            cartAdapter.notifyDataSetChanged();
+            updateCartTotal();
+            dialog.dismiss();
+        });
+        dialog.show();
+    }
+
+    private void holdCurrentTransaction() {
+        if (cartList.isEmpty()) { Toast.makeText(this, "Tidak ada pesanan!", Toast.LENGTH_SHORT).show(); return; }
+        String buyer = inputBuyerName.getText().toString().trim();
+        if (buyer.isEmpty()) buyer = "Pelanggan " + (holdList.size() + 1);
+        
+        holdList.add(new HoldOrderModel(buyer, System.currentTimeMillis(), new ArrayList<>(cartList)));
+        cartList.clear(); cartAdapter.notifyDataSetChanged(); updateCartTotal(); inputBuyerName.setText("");
+        tvHoldBadge.setText("(" + holdList.size() + ")");
+        Toast.makeText(this, "Pesanan ditahan.", Toast.LENGTH_SHORT).show();
+    }
+
+    private void showHoldListDialog() {
+        if (holdList.isEmpty()) { Toast.makeText(this, "Tidak ada antrean.", Toast.LENGTH_SHORT).show(); return; }
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_hold_list);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+
+        LinearLayout container = dialog.findViewById(R.id.containerHoldItems);
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", new Locale("id", "ID"));
+
+        for (int i = 0; i < holdList.size(); i++) {
+            final int index = i; HoldOrderModel order = holdList.get(i);
+            TextView tvOrder = new TextView(this);
+            tvOrder.setText(order.getBuyerName() + " (" + order.getItems().size() + " Item) - Jam: " + timeFormat.format(new Date(order.getTimestamp())));
+            tvOrder.setTextColor(Color.WHITE); tvOrder.setTextSize(14f); tvOrder.setPadding(30, 40, 30, 40);
+            if (i % 2 == 0) tvOrder.setBackgroundColor(Color.parseColor("#334155")); else tvOrder.setBackgroundColor(Color.parseColor("#1E293B"));
+            tvOrder.setOnClickListener(v -> {
+                inputBuyerName.setText(order.getBuyerName());
+                cartList.clear(); cartList.addAll(order.getItems());
+                cartAdapter.notifyDataSetChanged(); updateCartTotal();
+                holdList.remove(index); tvHoldBadge.setText("(" + holdList.size() + ")");
+                dialog.dismiss();
+            });
+            container.addView(tvOrder);
+        }
+        dialog.findViewById(R.id.btnCloseHoldList).setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
+    }
+
+    // ==========================================
+    // 🔥 4. PEMBAYARAN & STRUK (Versi Update Rincian)
+    // ==========================================
     private void showPaymentDialog() {
         Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -357,7 +354,7 @@ public class CashierActivity extends AppCompatActivity {
             tvItemName.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
             TextView tvItemPrice = new TextView(this);
-            int subtotal = item.getPrice() * item.getStock(); // getStock = Qty
+            int subtotal = item.getPrice() * item.getStock(); 
             tvItemPrice.setText(item.getStock() + "x " + formatRupiah.format(subtotal).replace("Rp", ""));
             tvItemPrice.setTextColor(Color.parseColor("#9CA3AF"));
             tvItemPrice.setTextSize(12f);
@@ -380,8 +377,6 @@ public class CashierActivity extends AppCompatActivity {
 
         dialog.show();
     }
-
-    
 
     private void processTransaction(int paidAmount, String method) {
         if (ownerId == null) return;
