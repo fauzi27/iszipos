@@ -1,14 +1,16 @@
 package com.iszi.pos;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,34 +19,46 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class CashierActivity extends AppCompatActivity {
 
-    // Firebase
     private FirebaseFirestore db;
     private String ownerId;
+    private String operatorName = "Admin";
 
-    // Menu Data
-    private RecyclerView rvMenus;
-    private MenuCashierAdapter menuAdapter;
-    private List<MenuModel> menuList;
-    private List<MenuModel> filteredMenuList;
+    // Profil Toko untuk Struk
+    private String shopName = "ISZI POS";
+    private String shopAddress = "Alamat Toko";
+    private String shopFooter = "Terima kasih";
+    private boolean removeWatermark = false;
+
+    // View Komponen
+    private RecyclerView rvMenuKasir;
+    private LinearLayout containerCartItems;
+    private TextView tvCartTotal;
+    private LinearLayout btnPay, btnResetCart;
     private EditText inputSearchMenu;
 
-    // Cart Data
-    private RecyclerView rvCart;
-    private CartAdapter cartAdapter;
-    private List<CartModel> cartList;
-    private TextView tvCartTotal;
-    private EditText inputBuyerName;
-    
+    // Data
+    private List<MenuModel> masterMenuList = new ArrayList<>();
+    private List<MenuModel> filteredMenuList = new ArrayList<>();
+    // Menggunakan MenuModel sebagai CartItem sementara untuk kemudahan
+    private List<MenuModel> cartList = new ArrayList<>(); 
+    private MenuAdapter menuAdapter;
+
+    private int totalBelanja = 0;
     private NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
 
     @Override
@@ -54,155 +68,240 @@ public class CashierActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) ownerId = currentUser.getUid();
+        if (currentUser != null) {
+            ownerId = currentUser.getUid();
+        }
 
         initViews();
-        setupMenuRecyclerView();
-        setupCartRecyclerView();
-        loadMenusFromFirebase();
-
-        // Tombol Kembali
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        setupListeners();
         
-        // Tombol Reset Keranjang
-        findViewById(R.id.btnResetCart).setOnClickListener(v -> clearCart());
+        fetchBusinessData();
+        fetchMenus();
+    }
 
-        // Fitur Pencarian Menu
-        inputSearchMenu.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { filterMenus(s.toString()); }
-            @Override public void afterTextChanged(Editable s) {}
+    private void initViews() {
+        rvMenuKasir = findViewById(R.id.rvMenuKasir); // Pastikan ID ini ada di XML
+        containerCartItems = findViewById(R.id.containerCartItems); // Pastikan ID ini ada di XML (pakai ScrollView > LinearLayout)
+        tvCartTotal = findViewById(R.id.tvCartTotal);
+        btnPay = findViewById(R.id.btnPay);
+        btnResetCart = findViewById(R.id.btnResetCart);
+        inputSearchMenu = findViewById(R.id.inputSearchMenu);
+
+        // Setup RecyclerView Menu (Grid 2 Kolom)
+        menuAdapter = new MenuAdapter(filteredMenuList, menu -> addToCart(menu));
+        rvMenuKasir.setLayoutManager(new GridLayoutManager(this, 2));
+        rvMenuKasir.setAdapter(menuAdapter);
+    }
+
+    private void setupListeners() {
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+
+        btnResetCart.setOnClickListener(v -> {
+            cartList.clear();
+            updateCartUI();
         });
 
-        // Tombol Bayar (Checkout)
-        findViewById(R.id.btnCheckout).setOnClickListener(v -> {
+        btnPay.setOnClickListener(v -> {
             if (cartList.isEmpty()) {
                 Toast.makeText(this, "Keranjang masih kosong!", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // Mockup Popup Bayar
-            new AlertDialog.Builder(this)
-                .setTitle("Pembayaran")
-                .setMessage("Total Tagihan: " + tvCartTotal.getText().toString() + "\nAtas Nama: " + inputBuyerName.getText().toString())
-                .setPositiveButton("Lunas (Tunai)", (dialog, which) -> {
-                    Toast.makeText(this, "Pembayaran Berhasil Disimpan!", Toast.LENGTH_SHORT).show();
-                    clearCart(); // Reset setelah bayar
-                })
-                .setNegativeButton("Batal", null)
-                .show();
+            showPaymentDialog();
+        });
+
+        // Pencarian Menu
+        inputSearchMenu.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { applyFilter(); }
+            @Override public void afterTextChanged(Editable s) {}
         });
     }
 
-    private void initViews() {
-        rvMenus = findViewById(R.id.rvMenus);
-        rvCart = findViewById(R.id.rvCart);
-        tvCartTotal = findViewById(R.id.tvCartTotal);
-        inputSearchMenu = findViewById(R.id.inputSearchMenu);
-        inputBuyerName = findViewById(R.id.inputBuyerName);
+    private void fetchBusinessData() {
+        if (ownerId == null) return;
+        db.collection("users").document(ownerId).get().addOnSuccessListener(doc -> {
+            if (doc.exists()) {
+                if (doc.contains("shopName")) shopName = doc.getString("shopName");
+                if (doc.contains("shopAddress")) shopAddress = doc.getString("shopAddress");
+                if (doc.contains("receiptFooter")) shopFooter = doc.getString("receiptFooter");
+                if (doc.contains("name")) operatorName = doc.getString("name");
+                if (doc.contains("removeWatermark")) removeWatermark = doc.getBoolean("removeWatermark");
+            }
+        });
     }
 
-    private void setupMenuRecyclerView() {
-        menuList = new ArrayList<>();
-        filteredMenuList = new ArrayList<>();
-        
-        menuAdapter = new MenuCashierAdapter(filteredMenuList, menu -> addToCart(menu));
-        
-        // Gunakan Grid 3 Kolom
-        rvMenus.setLayoutManager(new GridLayoutManager(this, 3));
-        rvMenus.setAdapter(menuAdapter);
-    }
-
-    private void setupCartRecyclerView() {
-        cartList = new ArrayList<>();
-        cartAdapter = new CartAdapter(cartList, (item, change) -> updateCartQty(item, change));
-        
-        rvCart.setLayoutManager(new LinearLayoutManager(this));
-        rvCart.setAdapter(cartAdapter);
-    }
-
-    private void loadMenusFromFirebase() {
+    private void fetchMenus() {
         if (ownerId == null) return;
         db.collection("users").document(ownerId).collection("menus")
-            .addSnapshotListener((snapshots, e) -> {
-                if (e != null) return;
-                menuList.clear();
-                if (snapshots != null) {
-                    for (QueryDocumentSnapshot doc : snapshots) {
-                        MenuModel m = doc.toObject(MenuModel.class);
-                        m.setId(doc.getId());
-                        menuList.add(m);
-                    }
+            .get().addOnSuccessListener(queryDocumentSnapshots -> {
+                masterMenuList.clear();
+                for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                    MenuModel menu = doc.toObject(MenuModel.class);
+                    menu.setId(doc.getId());
+                    masterMenuList.add(menu);
                 }
-                filterMenus(inputSearchMenu.getText().toString());
+                applyFilter();
             });
     }
 
-    private void filterMenus(String query) {
+    private void applyFilter() {
         filteredMenuList.clear();
-        if (query.isEmpty()) {
-            filteredMenuList.addAll(menuList);
-        } else {
-            for (MenuModel m : menuList) {
-                if (m.getName().toLowerCase().contains(query.toLowerCase())) {
-                    filteredMenuList.add(m);
-                }
+        String query = inputSearchMenu.getText().toString().toLowerCase().trim();
+        for (MenuModel m : masterMenuList) {
+            if (m.getName().toLowerCase().contains(query)) {
+                filteredMenuList.add(m);
             }
         }
         menuAdapter.notifyDataSetChanged();
     }
 
     private void addToCart(MenuModel menu) {
-        if (menu.getStock() == 0) {
-            Toast.makeText(this, "Stok Habis!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+        // Cek apakah menu sudah ada di keranjang
         boolean exists = false;
-        for (CartModel c : cartList) {
-            if (c.getId().equals(menu.getId())) {
-                if (c.getQty() < menu.getStock()) {
-                    c.setQty(c.getQty() + 1);
-                } else {
-                    Toast.makeText(this, "Stok tidak mencukupi!", Toast.LENGTH_SHORT).show();
-                }
+        for (MenuModel item : cartList) {
+            if (item.getId().equals(menu.getId())) {
+                item.setStock(item.getStock() + 1); // Menggunakan setter stock sementara sebagai QTY di keranjang
                 exists = true;
                 break;
             }
         }
-
+        
         if (!exists) {
-            cartList.add(new CartModel(menu.getId(), menu.getName(), menu.getPrice(), 1, menu.getStock()));
+            // Clone menu agar tidak mengubah data master
+            MenuModel newItem = new MenuModel(menu.getId(), menu.getName(), menu.getCategory(), menu.getPrice(), 1, menu.getCapitalPrice());
+            cartList.add(newItem);
+        }
+        updateCartUI();
+    }
+
+    private void updateCartUI() {
+        containerCartItems.removeAllViews();
+        totalBelanja = 0;
+
+        for (int i = 0; i < cartList.size(); i++) {
+            MenuModel item = cartList.get(i);
+            int subtotal = item.getPrice() * item.getStock(); // getStock() di sini berfungsi sebagai QTY
+            totalBelanja += subtotal;
+
+            // Buat View Item Keranjang secara dinamis
+            TextView tvItem = new TextView(this);
+            tvItem.setText(item.getName() + "\n" + item.getStock() + "x Rp " + formatRupiah.format(item.getPrice()).replace("Rp", ""));
+            tvItem.setTextColor(getResources().getColor(android.R.color.white));
+            tvItem.setPadding(0, 10, 0, 10);
+            
+            // Klik untuk hapus
+            final int index = i;
+            tvItem.setOnClickListener(v -> {
+                cartList.remove(index);
+                updateCartUI();
+            });
+
+            containerCartItems.addView(tvItem);
         }
 
-        cartAdapter.notifyDataSetChanged();
-        updateGrandTotal();
+        tvCartTotal.setText(formatRupiah.format(totalBelanja).replace("Rp", "Rp "));
     }
 
-    private void updateCartQty(CartModel item, int change) {
-        int newQty = item.getQty() + change;
+    private void showPaymentDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Pembayaran");
         
-        if (newQty <= 0) {
-            cartList.remove(item);
-        } else if (newQty > item.getMaxStock()) {
-            Toast.makeText(this, "Batas Maksimal Stok!", Toast.LENGTH_SHORT).show();
-        } else {
-            item.setQty(newQty);
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(40, 20, 40, 20);
+
+        final TextView tvInfo = new TextView(this);
+        tvInfo.setText("Total Tagihan: " + formatRupiah.format(totalBelanja));
+        tvInfo.setTextSize(18f);
+        tvInfo.setPadding(0, 0, 0, 20);
+        layout.addView(tvInfo);
+
+        final EditText inputNama = new EditText(this);
+        inputNama.setHint("Nama Pelanggan (Opsional)");
+        layout.addView(inputNama);
+
+        final EditText inputBayar = new EditText(this);
+        inputBayar.setHint("Jumlah Uang Diterima (Rp)");
+        inputBayar.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        layout.addView(inputBayar);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton("BAYAR TUNAI", (dialog, which) -> {
+            String bayarStr = inputBayar.getText().toString();
+            int dibayar = bayarStr.isEmpty() ? totalBelanja : Integer.parseInt(bayarStr);
+            String pelanggan = inputNama.getText().toString().isEmpty() ? "Umum" : inputNama.getText().toString();
+            
+            processTransaction(dibayar, "TUNAI", pelanggan);
+        });
+
+        builder.setNegativeButton("BAYAR QRIS", (dialog, which) -> {
+            String pelanggan = inputNama.getText().toString().isEmpty() ? "Umum" : inputNama.getText().toString();
+            processTransaction(totalBelanja, "QRIS", pelanggan);
+        });
+
+        builder.setNeutralButton("BATAL", null);
+        builder.show();
+    }
+
+    private void processTransaction(int paidAmount, String method, String buyerName) {
+        if (ownerId == null) return;
+
+        btnPay.setEnabled(false);
+        Toast.makeText(this, "Memproses...", Toast.LENGTH_SHORT).show();
+
+        long timestamp = System.currentTimeMillis();
+        SimpleDateFormat sdfDate = new SimpleDateFormat("dd MMM yyyy, HH:mm", new Locale("id", "ID"));
+        String dateStr = sdfDate.format(new Date(timestamp));
+        String txId = "TX-" + timestamp;
+
+        int remaining = totalBelanja > paidAmount ? (totalBelanja - paidAmount) : 0;
+        int change = paidAmount > totalBelanja ? (paidAmount - totalBelanja) : 0;
+
+        // Hitung Modal (HPP)
+        int capitalTotal = 0;
+        for (MenuModel item : cartList) {
+            capitalTotal += (item.getCapitalPrice() * item.getStock()); // getStock() disini = QTY
         }
+
+        // Buat Model Transaksi
+        TransactionModel tx = new TransactionModel(
+                txId, buyerName, dateStr, method, "SUCCESS", timestamp, 
+                totalBelanja, paidAmount, remaining, capitalTotal, false
+        );
+        tx.setOperatorName(operatorName);
         
-        cartAdapter.notifyDataSetChanged();
-        updateGrandTotal();
-    }
+        // Asumsi: Karena TransactionModel dasar kita belum punya list item, kita simpan langsung ke Firestore sebagai Map tambahan
+        Map<String, Object> txData = new HashMap<>();
+        txData.put("id", tx.getId());
+        txData.put("buyer", tx.getBuyer());
+        txData.put("date", tx.getDate());
+        txData.put("method", tx.getMethod());
+        txData.put("status", tx.getStatus());
+        txData.put("timestamp", tx.getTimestamp());
+        txData.put("total", tx.getTotal());
+        txData.put("paid", tx.getPaid());
+        txData.put("remaining", tx.getRemaining());
+        txData.put("change", change);
+        txData.put("capitalTotal", tx.getCapitalTotal());
+        txData.put("operatorName", tx.getOperatorName());
 
-    private void clearCart() {
-        cartList.clear();
-        inputBuyerName.setText("");
-        cartAdapter.notifyDataSetChanged();
-        updateGrandTotal();
-    }
-
-    private void updateGrandTotal() {
-        long total = 0;
-        for (CartModel c : cartList) total += ((long) c.getPrice() * c.getQty());
-        tvCartTotal.setText(formatRupiah.format(total).replace("Rp", "Rp "));
+        // Simpan ke Firebase
+        db.collection("users").document(ownerId).collection("transactions").document(txId)
+                .set(txData)
+                .addOnSuccessListener(aVoid -> {
+                    btnPay.setEnabled(true);
+                    
+                    // 🔥 MUNCULKAN MODAL STRUK 🔥
+                    ReceiptDialog.show(CashierActivity.this, tx, shopName, shopAddress, shopFooter, removeWatermark);
+                    
+                    // Reset Keranjang
+                    cartList.clear();
+                    updateCartUI();
+                })
+                .addOnFailureListener(e -> {
+                    btnPay.setEnabled(true);
+                    Toast.makeText(this, "Gagal menyimpan: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 }
