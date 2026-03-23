@@ -18,12 +18,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:justifyContent="space-between"
             android:layout_marginBottom="8dp">
             
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:orientation="vertical">
                 <TextView
                     android:id="@+id/tvTableInvoice"
@@ -76,7 +76,7 @@
                 </LinearLayout>
                 
                 <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
-                    <ImageView android:layout_width="12dp" android:layout_height="12dp" android:src="@android:drawable/ic_menu_cc_am" app:tint="#FCD34D" android:layout_gravity="center_vertical"/>
+                    <ImageView android:layout_width="12dp" android:layout_height="12dp" android:src="@android:drawable/ic_menu_myplaces" app:tint="#FCD34D" android:layout_gravity="center_vertical"/>
                     <TextView android:id="@+id/tvTableBuyer" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pelanggan Umum" android:textColor="#FDE68A" android:textSize="11sp" android:textStyle="bold" android:layout_marginStart="4dp"/>
                 </LinearLayout>
             </LinearLayout>
