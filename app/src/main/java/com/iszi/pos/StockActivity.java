@@ -6,10 +6,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View; // INI YANG HILANG!
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,16 +35,15 @@ public class StockActivity extends AppCompatActivity {
 
     private RecyclerView rvStock;
     private StockAdapter adapter;
-    private List<MenuModel> masterList;
-    private List<MenuModel> filteredList;
+    private List<MenuModel> masterList = new ArrayList<>();
+    private List<MenuModel> filteredList = new ArrayList<>();
 
     private EditText inputSearchStock;
     private LinearLayout btnSort;
     private TextView tvSortLabel;
-    private String sortMode = "default"; // default, stock_low, stock_high
+    private String sortMode = "default";
 
-    // Variabel Modal Input Cerdas
-    private String currentInputMode = "add"; // add, sub, set
+    private String currentInputMode = "add";
     private MenuModel selectedMenu;
     private int predictedTotal = 0;
 
@@ -71,18 +70,11 @@ public class StockActivity extends AppCompatActivity {
     }
 
     private void setupRecyclerView() {
-        masterList = new ArrayList<>();
-        filteredList = new ArrayList<>();
-        
         adapter = new StockAdapter(filteredList, new StockAdapter.OnStockClickListener() {
-            @Override
-            public void onMinClick(MenuModel menu) { updateStockFast(menu, -1); }
-            @Override
-            public void onPlusClick(MenuModel menu) { updateStockFast(menu, 1); }
-            @Override
-            public void onNumberClick(MenuModel menu) { showSmartInputDialog(menu); }
+            @Override public void onMinClick(MenuModel menu) { updateStockFast(menu, -1); }
+            @Override public void onPlusClick(MenuModel menu) { updateStockFast(menu, 1); }
+            @Override public void onNumberClick(MenuModel menu) { showSmartInputDialog(menu); }
         });
-
         rvStock.setLayoutManager(new LinearLayoutManager(this));
         rvStock.setAdapter(adapter);
     }
@@ -90,7 +82,6 @@ public class StockActivity extends AppCompatActivity {
     private void setupListeners() {
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
-        // Logika Sortir
         btnSort.setOnClickListener(v -> {
             if (sortMode.equals("default")) { sortMode = "stock_low"; tvSortLabel.setText("Stok Menipis"); }
             else if (sortMode.equals("stock_low")) { sortMode = "stock_high"; tvSortLabel.setText("Stok Banyak"); }
@@ -98,7 +89,6 @@ public class StockActivity extends AppCompatActivity {
             applyFilters();
         });
 
-        // Logika Pencarian
         inputSearchStock.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) { applyFilters(); }
@@ -133,24 +123,20 @@ public class StockActivity extends AppCompatActivity {
             }
         }
 
-        // Pengurutan
         if (sortMode.equals("stock_low")) {
             Collections.sort(filteredList, (a, b) -> Integer.compare(a.getStock(), b.getStock()));
         } else if (sortMode.equals("stock_high")) {
             Collections.sort(filteredList, (a, b) -> Integer.compare(b.getStock(), a.getStock()));
         }
-
         adapter.notifyDataSetChanged();
     }
 
-    // UPDATE CEPAT (TOMBOL + DAN -)
     private void updateStockFast(MenuModel menu, int change) {
         int newStock = menu.getStock() + change;
-        if (newStock < 0) return; // Cegah minus
+        if (newStock < 0) return;
         saveStockToFirebase(menu.getId(), newStock);
     }
 
-    // UPDATE CERDAS (MODAL)
     private void showSmartInputDialog(MenuModel menu) {
         selectedMenu = menu;
         currentInputMode = "add";
@@ -160,7 +146,6 @@ public class StockActivity extends AppCompatActivity {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_stock_input);
         
-        // Atur agar background modal menjadi transparan dan lebar maksimal
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
 
@@ -178,7 +163,6 @@ public class StockActivity extends AppCompatActivity {
         tvPreviewAwal.setText(String.valueOf(menu.getStock()));
         tvPreviewAkhir.setText(String.valueOf(predictedTotal));
 
-        // Fungsi Update Prediksi
         Runnable updatePrediction = () -> {
             String valStr = inputStockNumber.getText().toString();
             int parsedVal = valStr.isEmpty() ? 0 : Integer.parseInt(valStr);
@@ -190,7 +174,7 @@ public class StockActivity extends AppCompatActivity {
             tvPreviewAkhir.setText(String.valueOf(predictedTotal));
             
             if (predictedTotal < 0) {
-                tvPreviewAkhir.setTextColor(Color.parseColor("#EF4444")); // Merah
+                tvPreviewAkhir.setTextColor(Color.parseColor("#EF4444"));
                 btnSave.setEnabled(false);
             } else {
                 tvPreviewAkhir.setTextColor(Color.WHITE);
@@ -198,9 +182,7 @@ public class StockActivity extends AppCompatActivity {
             }
         };
 
-        // Fungsi Ganti Mode
         View.OnClickListener modeListener = v -> {
-            // Reset Warna
             btnModeAdd.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#0F172A")));
             btnModeAdd.setTextColor(Color.parseColor("#6B7280"));
             btnModeSub.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#0F172A")));
@@ -208,7 +190,6 @@ public class StockActivity extends AppCompatActivity {
             btnModeSet.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#0F172A")));
             btnModeSet.setTextColor(Color.parseColor("#6B7280"));
 
-            // Set Warna Aktif
             if (v.getId() == R.id.btnModeAdd) {
                 currentInputMode = "add";
                 btnModeAdd.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.parseColor("#22C55E")));
@@ -251,6 +232,6 @@ public class StockActivity extends AppCompatActivity {
         if (ownerId == null) return;
         db.collection("users").document(ownerId).collection("menus").document(menuId)
             .update("stock", finalStock)
-            .addOnFailureListener(e -> Toast.makeText(this, "Gagal update stok: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            .addOnFailureListener(e -> Toast.makeText(this, "Gagal update stok", Toast.LENGTH_SHORT).show());
     }
 }
