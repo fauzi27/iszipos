@@ -17,11 +17,12 @@
         android:gravity="center">
 
         <ImageView
+            android:id="@+id/imgMenu"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@android:drawable/ic_menu_agenda"
+            android:src="@android:drawable/ic_menu_gallery"
             app:tint="#3B82F6"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginBottom="8dp"/>
 
         <TextView
             android:id="@+id/tvMenuName"
@@ -44,6 +45,16 @@
             android:textSize="12sp"
             android:textStyle="bold"
             android:gravity="center"
-            android:layout_marginTop="6dp"/>
+            android:layout_marginTop="4dp"/>
+
+        <TextView
+            android:id="@+id/tvMenuStock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stok: 0"
+            android:textColor="#9CA3AF"
+            android:textSize="10sp"
+            android:gravity="center"
+            android:layout_marginTop="4dp"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
