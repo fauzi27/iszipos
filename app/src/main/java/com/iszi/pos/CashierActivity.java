@@ -1,5 +1,6 @@
 package com.iszi.pos;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -49,11 +50,15 @@ public class CashierActivity extends AppCompatActivity {
     private EditText inputSearchMenu, inputBuyerName;
     private LinearLayout btnResetCart, btnHold, btnManual;
     private MaterialButton btnCheckout;
+    private android.widget.ImageButton btnHoldList; // Sesuai XML milikmu
 
     private List<MenuModel> masterMenuList = new ArrayList<>();
     private List<MenuModel> filteredMenuList = new ArrayList<>();
     private List<MenuModel> cartList = new ArrayList<>(); 
     
+    // 🔥 Kantong Penyimpanan Sementara (Fitur Gantung)
+    private List<HoldOrderModel> holdList = new ArrayList<>();
+
     private CashierMenuAdapter menuAdapter;
     private CashierCartAdapter cartAdapter;
 
@@ -67,9 +72,7 @@ public class CashierActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            ownerId = currentUser.getUid();
-        }
+        if (currentUser != null) ownerId = currentUser.getUid();
 
         initViews();
         setupListeners();
@@ -89,12 +92,13 @@ public class CashierActivity extends AppCompatActivity {
         btnCheckout = findViewById(R.id.btnCheckout);
         btnHold = findViewById(R.id.btnHold);
         btnManual = findViewById(R.id.btnManual);
+        btnHoldList = findViewById(R.id.btnHoldList);
 
         menuAdapter = new CashierMenuAdapter(filteredMenuList, menu -> addToCart(menu));
         rvMenus.setLayoutManager(new GridLayoutManager(this, 2));
         rvMenus.setAdapter(menuAdapter);
 
-        cartAdapter = new CashierCartAdapter(cartList, () -> updateCartTotal());
+        cartAdapter = new CashierCartAdapter(cartList, this::updateCartTotal);
         rvCart.setLayoutManager(new LinearLayoutManager(this));
         rvCart.setAdapter(cartAdapter);
     }
@@ -106,18 +110,21 @@ public class CashierActivity extends AppCompatActivity {
             cartList.clear();
             cartAdapter.notifyDataSetChanged();
             updateCartTotal();
+            inputBuyerName.setText("");
         });
 
         btnCheckout.setOnClickListener(v -> {
             if (cartList.isEmpty()) {
-                Toast.makeText(this, "Keranjang masih kosong!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Keranjang kosong!", Toast.LENGTH_SHORT).show();
                 return;
             }
             showPaymentDialog();
         });
 
-        btnManual.setOnClickListener(v -> Toast.makeText(this, "Fitur Manual akan segera aktif!", Toast.LENGTH_SHORT).show());
-        btnHold.setOnClickListener(v -> Toast.makeText(this, "Fitur Gantung Transaksi sedang dirakit!", Toast.LENGTH_SHORT).show());
+        // 🔥 AKTIVASI TOMBOL MANUAL & GANTUNG
+        btnManual.setOnClickListener(v -> showManualItemDialog());
+        btnHold.setOnClickListener(v -> holdCurrentTransaction());
+        btnHoldList.setOnClickListener(v -> showHoldListDialog());
 
         inputSearchMenu.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -126,6 +133,138 @@ public class CashierActivity extends AppCompatActivity {
         });
     }
 
+    // ==========================================
+    // 🔥 1. FITUR ITEM MANUAL (OPSI 2 POS MODERN)
+    // ==========================================
+    private void showManualItemDialog() {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_manual_item);
+        
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+
+        EditText inputName = dialog.findViewById(R.id.inputManualName);
+        EditText inputPrice = dialog.findViewById(R.id.inputManualPrice);
+        MaterialButton btnCancel = dialog.findViewById(R.id.btnCancelManual);
+        MaterialButton btnAdd = dialog.findViewById(R.id.btnAddManual);
+
+        // Auto-focus ke input harga saat popup muncul
+        inputPrice.requestFocus();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnAdd.setOnClickListener(v -> {
+            String priceStr = inputPrice.getText().toString();
+            if (priceStr.isEmpty()) {
+                Toast.makeText(this, "Harga wajib diisi!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int price = Integer.parseInt(priceStr);
+            String name = inputName.getText().toString().trim();
+            if (name.isEmpty()) name = "Item Manual";
+
+            // Buat menu fiktif dan masukkan ke keranjang
+            String manualId = "MANUAL-" + System.currentTimeMillis();
+            MenuModel manualItem = new MenuModel(manualId, name, "MANUAL", price, 1, 0);
+            
+            cartList.add(manualItem);
+            cartAdapter.notifyDataSetChanged();
+            updateCartTotal();
+            
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    // ==========================================
+    // 🔥 2. FITUR GANTUNG (HOLD TRANSACTION)
+    // ==========================================
+    private void holdCurrentTransaction() {
+        if (cartList.isEmpty()) {
+            Toast.makeText(this, "Tidak ada pesanan untuk digantung!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String buyer = inputBuyerName.getText().toString().trim();
+        if (buyer.isEmpty()) buyer = "Pelanggan " + (holdList.size() + 1);
+
+        // Bungkus list saat ini agar tidak terikat referensi lama
+        List<MenuModel> savedCart = new ArrayList<>(cartList);
+        
+        HoldOrderModel heldOrder = new HoldOrderModel(buyer, System.currentTimeMillis(), savedCart);
+        holdList.add(heldOrder);
+
+        // Kosongkan Kasir
+        cartList.clear();
+        cartAdapter.notifyDataSetChanged();
+        updateCartTotal();
+        inputBuyerName.setText("");
+
+        // Update Lencana (Badge)
+        tvHoldBadge.setText("(" + holdList.size() + ")");
+        Toast.makeText(this, "Pesanan " + buyer + " berhasil ditahan.", Toast.LENGTH_SHORT).show();
+    }
+
+    private void showHoldListDialog() {
+        if (holdList.isEmpty()) {
+            Toast.makeText(this, "Tidak ada antrean pesanan.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_hold_list);
+        
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+
+        LinearLayout container = dialog.findViewById(R.id.containerHoldItems);
+        MaterialButton btnClose = dialog.findViewById(R.id.btnCloseHoldList);
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", new Locale("id", "ID"));
+
+        for (int i = 0; i < holdList.size(); i++) {
+            final int index = i;
+            HoldOrderModel order = holdList.get(i);
+
+            // Bikin Kartu Antrean secara Dinamis
+            TextView tvOrder = new TextView(this);
+            tvOrder.setText(order.getBuyerName() + " (" + order.getItems().size() + " Item) - Jam: " + timeFormat.format(new Date(order.getTimestamp())));
+            tvOrder.setTextColor(Color.WHITE);
+            tvOrder.setTextSize(14f);
+            tvOrder.setPadding(30, 40, 30, 40);
+            
+            // Background selang-seling agar rapi
+            if (i % 2 == 0) tvOrder.setBackgroundColor(Color.parseColor("#334155"));
+            else tvOrder.setBackgroundColor(Color.parseColor("#1E293B"));
+
+            tvOrder.setOnClickListener(v -> {
+                // Pindahkan kembali ke Kasir Utama
+                inputBuyerName.setText(order.getBuyerName());
+                cartList.clear();
+                cartList.addAll(order.getItems());
+                cartAdapter.notifyDataSetChanged();
+                updateCartTotal();
+
+                // Hapus dari daftar antrean
+                holdList.remove(index);
+                tvHoldBadge.setText("(" + holdList.size() + ")");
+                dialog.dismiss();
+            });
+
+            container.addView(tvOrder);
+        }
+
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
+    }
+
+    // ==========================================
+    // KODE BAWAAN (TIDAK BERUBAH)
+    // ==========================================
     private void fetchBusinessData() {
         if (ownerId == null) return;
         db.collection("users").document(ownerId).get().addOnSuccessListener(doc -> {
@@ -189,7 +328,6 @@ public class CashierActivity extends AppCompatActivity {
         tvCartTotal.setText(formatRupiah.format(totalBelanja).replace("Rp", "Rp "));
     }
 
-    // 🔥 INI MODAL PEMBAYARAN ELEGAN YANG BARU 🔥
     private void showPaymentDialog() {
         Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -207,12 +345,7 @@ public class CashierActivity extends AppCompatActivity {
         tvCheckoutTotal.setText(formatRupiah.format(totalBelanja).replace("Rp", "Rp "));
 
         btnCheckoutCancel.setOnClickListener(v -> dialog.dismiss());
-
-        btnCheckoutQRIS.setOnClickListener(v -> {
-            processTransaction(totalBelanja, "QRIS");
-            dialog.dismiss();
-        });
-
+        btnCheckoutQRIS.setOnClickListener(v -> { processTransaction(totalBelanja, "QRIS"); dialog.dismiss(); });
         btnCheckoutCash.setOnClickListener(v -> {
             String bayarStr = inputCheckoutCash.getText().toString();
             int dibayar = bayarStr.isEmpty() ? totalBelanja : Integer.parseInt(bayarStr);
@@ -225,7 +358,6 @@ public class CashierActivity extends AppCompatActivity {
 
     private void processTransaction(int paidAmount, String method) {
         if (ownerId == null) return;
-
         btnCheckout.setEnabled(false);
         Toast.makeText(this, "Memproses...", Toast.LENGTH_SHORT).show();
 
@@ -236,9 +368,7 @@ public class CashierActivity extends AppCompatActivity {
 
         int remaining = totalBelanja > paidAmount ? (totalBelanja - paidAmount) : 0;
         int change = paidAmount > totalBelanja ? (paidAmount - totalBelanja) : 0;
-
         int capitalTotal = 0;
-        // Kita juga butuh duplikat list untuk disimpan ke Firebase agar rapi
         List<MenuModel> savedItems = new ArrayList<>();
         
         for (MenuModel item : cartList) {
@@ -249,7 +379,6 @@ public class CashierActivity extends AppCompatActivity {
         String buyerName = inputBuyerName.getText().toString().trim();
         if (buyerName.isEmpty()) buyerName = "Umum";
 
-        // 🔥 TAMBAHKAN savedItems (Daftar belanja) SAAT MEMBUAT MODEL TRANSAKSI 🔥
         TransactionModel tx = new TransactionModel(
                 txId, buyerName, dateStr, method, "SUCCESS", timestamp, 
                 totalBelanja, paidAmount, remaining, capitalTotal, false, savedItems
@@ -266,18 +395,16 @@ public class CashierActivity extends AppCompatActivity {
         txData.put("total", tx.getTotal());
         txData.put("paid", tx.getPaid());
         txData.put("remaining", tx.getRemaining());
-        txData.put("change", tx.getChange()); // Perbaikan minor jika butuh field change
+        txData.put("change", change); 
         txData.put("capitalTotal", tx.getCapitalTotal());
         txData.put("operatorName", tx.getOperatorName());
-        txData.put("items", tx.getItems()); // 🔥 Simpan rincian belanja ke database!
+        txData.put("items", tx.getItems()); 
 
         db.collection("users").document(ownerId).collection("transactions").document(txId)
                 .set(txData)
                 .addOnSuccessListener(aVoid -> {
                     btnCheckout.setEnabled(true);
-                    
                     ReceiptDialog.show(CashierActivity.this, tx, shopName, shopAddress, shopFooter, removeWatermark);
-                    
                     cartList.clear();
                     cartAdapter.notifyDataSetChanged();
                     updateCartTotal();
