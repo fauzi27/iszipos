@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="#1E293B"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            app:cardCornerRadius="8dp"
+            app:cardBackgroundColor="#334155"
+            app:cardElevation="0dp"
+            android:layout_marginEnd="12dp">
+            <ImageView
+                android:id="@+id/imgMenuStock"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@android:drawable/ic_menu_gallery"
+                app:tint="#9CA3AF"
+                android:scaleType="centerInside"
+                android:padding="8dp"/>
+        </androidx.cardview.widget.CardView>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tvMenuNameStock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nama Menu"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:layout_marginBottom="2dp"/>
+            <TextView
+                android:id="@+id/tvMenuStockCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sisa Stok: 0"
+                android:textColor="#4ADE80"
+                android:textSize="12sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/bg_circle_button"
+            android:backgroundTint="#0F172A"
+            android:padding="4dp"
+            android:gravity="center">
+
+            <ImageButton
+                android:id="@+id/btnMinStock"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_badge_kasir"
+                android:backgroundTint="#1E293B"
+                android:src="@android:drawable/ic_delete"
+                app:tint="#EF4444"/>
+
+            <TextView
+                android:id="@+id/tvStockValue"
+                android:layout_width="40dp"
+                android:layout_height="match_parent"
+                android:text="0"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="?attr/selectableItemBackground"/>
+
+            <ImageButton
+                android:id="@+id/btnPlusStock"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_badge_kasir"
+                android:backgroundTint="#1E293B"
+                android:src="@android:drawable/ic_input_add"
+                app:tint="#3B82F6"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
