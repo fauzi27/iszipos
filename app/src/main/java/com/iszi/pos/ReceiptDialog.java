@@ -37,7 +37,6 @@ public class ReceiptDialog {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
-        // Inisialisasi View
         TextView tvReceiptShopName = view.findViewById(R.id.tvReceiptShopName);
         TextView tvReceiptAddress = view.findViewById(R.id.tvReceiptAddress);
         TextView tvReceiptMeta = view.findViewById(R.id.tvReceiptMeta);
@@ -55,7 +54,6 @@ public class ReceiptDialog {
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy HH:mm", new Locale("id", "ID"));
 
-        // Set Data Usaha
         tvReceiptShopName.setText(shopName != null ? shopName.toUpperCase() : "ISZI POS");
         tvReceiptAddress.setText(shopAddress != null ? shopAddress : "Alamat Toko");
         tvReceiptFooter.setText(shopFooter != null ? shopFooter : "Terima kasih atas kunjungan Anda");
@@ -64,41 +62,52 @@ public class ReceiptDialog {
             tvReceiptWatermark.setVisibility(View.GONE);
         }
 
-        // Set Status Batal
         boolean isRefunded = "REFUNDED".equals(tx.getStatus());
-        if (isRefunded) {
-            tvStampBatal.setVisibility(View.VISIBLE);
-        }
+        if (isRefunded) tvStampBatal.setVisibility(View.VISIBLE);
 
-        // Set Meta Transaksi
         long time = tx.getTimestamp() > 0 ? tx.getTimestamp() : System.currentTimeMillis();
-        String invoiceId = "INV-" + time; // Disederhanakan
+        String invoiceId = "INV-" + time;
         
         String metaText = "Tgl  : " + sdf.format(new Date(time)) + "\n" +
                           "No   : " + invoiceId.substring(0, 14) + "\n" +
                           "Kasir: " + (tx.getOperatorName() != null ? tx.getOperatorName() : "Admin");
-        
         if (tx.getBuyer() != null && !tx.getBuyer().isEmpty()) {
             metaText += "\nPlgn : " + tx.getBuyer();
         }
         tvReceiptMeta.setText(metaText);
 
-        // Set Item Transaksi (Dinamic)
+        // 🔥 RENDER ITEM DINAMIS SESUAI TRANSAKSI 🔥
         containerReceiptItems.removeAllViews();
         int totalItemsCount = 0;
         
-        // Asumsi: Karena di Java Native kita belum membuat CartItemModel khusus, 
-        // kita menggunakan Item Manual sebagai placeholder jika data item kosong
-        // (Nanti bisa disempurnakan jika model Cart disertakan)
-        TextView tvItem = new TextView(context);
-        tvItem.setText("1x Transaksi Kasir\n   Rp " + formatRupiah.format(tx.getTotal()).replace("Rp", ""));
-        tvItem.setTextColor(Color.BLACK);
-        tvItem.setTypeface(Typeface.MONOSPACE);
-        tvItem.setTextSize(12f);
-        containerReceiptItems.addView(tvItem);
-        totalItemsCount = 1;
+        if (tx.getItems() != null && !tx.getItems().isEmpty()) {
+            for (MenuModel item : tx.getItems()) {
+                int qty = item.getStock(); // Menggunakan stock sebagai penampung qty keranjang
+                int subtotal = qty * item.getPrice();
+                totalItemsCount += qty;
 
-        // Set Pembayaran
+                TextView tvItem = new TextView(context);
+                String itemName = item.getName();
+                String itemDetail = "  " + qty + "x " + formatRupiah.format(item.getPrice()).replace("Rp", "") + " = " + formatRupiah.format(subtotal).replace("Rp", "");
+                
+                tvItem.setText(itemName + "\n" + itemDetail);
+                tvItem.setTextColor(Color.BLACK);
+                tvItem.setTypeface(Typeface.MONOSPACE);
+                tvItem.setTextSize(12f);
+                tvItem.setPadding(0, 0, 0, 8);
+                containerReceiptItems.addView(tvItem);
+            }
+        } else {
+            // Fallback jika transaksi lama yang belum ada itemnya
+            TextView tvItem = new TextView(context);
+            tvItem.setText("1x Item Manual\n   Rp " + formatRupiah.format(tx.getTotal()).replace("Rp", ""));
+            tvItem.setTextColor(Color.BLACK);
+            tvItem.setTypeface(Typeface.MONOSPACE);
+            tvItem.setTextSize(12f);
+            containerReceiptItems.addView(tvItem);
+            totalItemsCount = 1;
+        }
+
         StringBuilder paymentInfo = new StringBuilder();
         paymentInfo.append("Total Item : ").append(totalItemsCount).append("\n");
         paymentInfo.append("TOTAL      : ").append(formatRupiah.format(tx.getTotal()).replace("Rp", "Rp ")).append("\n\n");
@@ -108,46 +117,40 @@ public class ReceiptDialog {
         } else {
             paymentInfo.append("Metode     : ").append(tx.getMethod() != null ? tx.getMethod() : "TUNAI").append("\n");
             paymentInfo.append("Dibayar    : ").append(formatRupiah.format(tx.getPaid()).replace("Rp", "Rp ")).append("\n");
-            
             if (tx.getRemaining() > 0) {
                 paymentInfo.append("SISA HUTANG: ").append(formatRupiah.format(tx.getRemaining()).replace("Rp", "Rp ")).append("\n");
             }
         }
         tvReceiptPaymentInfo.setText(paymentInfo.toString());
 
-        // LOGIKA TOMBOL
         btnCloseReceipt.setOnClickListener(v -> dialog.dismiss());
-
         btnSharePDF.setOnClickListener(v -> Toast.makeText(context, "Fitur cetak PDF sedang dirakit!", Toast.LENGTH_SHORT).show());
         btnPrintBT.setOnClickListener(v -> Toast.makeText(context, "Fitur printer Bluetooth sedang dirakit!", Toast.LENGTH_SHORT).show());
 
         btnShareWA.setOnClickListener(v -> {
-            // Tampilkan Input Nomor WA
             AlertDialog.Builder waBuilder = new AlertDialog.Builder(context);
             waBuilder.setTitle("Kirim via WhatsApp");
             waBuilder.setMessage("Masukkan nomor WA Pelanggan:");
-            
             final EditText inputWA = new EditText(context);
             inputWA.setHint("Cth: 08123456789");
             inputWA.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
             waBuilder.setView(inputWA);
-            
             waBuilder.setPositiveButton("Kirim", (dialogWa, which) -> {
                 String phone = inputWA.getText().toString().trim();
-                if (phone.isEmpty()) {
-                    Toast.makeText(context, "Nomor WA kosong!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                
-                // Format nomor (ganti 0 di depan jadi 62)
-                if (phone.startsWith("0")) {
-                    phone = "62" + phone.substring(1);
-                }
+                if (phone.isEmpty()) { Toast.makeText(context, "Nomor WA kosong!", Toast.LENGTH_SHORT).show(); return; }
+                if (phone.startsWith("0")) phone = "62" + phone.substring(1);
 
-                // Buat Teks WA
                 String waText = "*STRUK PEMBELIAN - " + (shopName != null ? shopName.toUpperCase() : "ISZI") + "*\n";
                 waText += "No: " + invoiceId.substring(0, 14) + "\n";
-                waText += "Total: *Rp " + formatRupiah.format(tx.getTotal()).replace("Rp", "") + "*\n\n";
+                
+                // Tambahkan rincian belanja ke pesan WA
+                if (tx.getItems() != null) {
+                    for (MenuModel item : tx.getItems()) {
+                        waText += item.getName() + " (" + item.getStock() + "x)\n";
+                    }
+                }
+                
+                waText += "\nTotal: *Rp " + formatRupiah.format(tx.getTotal()).replace("Rp", "") + "*\n\n";
                 waText += "Terima kasih atas kunjungan Anda.";
 
                 try {
