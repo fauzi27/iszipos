@@ -1,14 +1,19 @@
 package com.iszi.pos;
 
+import java.util.List;
+
 public class TransactionModel {
     private String id, buyer, date, method, status, operatorName, refundReason;
     private long timestamp;
     private int total, paid, remaining, capitalTotal;
     private boolean isPendingSync;
+    
+    // 🔥 INI KUNCINYA: Kantong untuk menyimpan daftar menu yang dibeli
+    private List<MenuModel> items;
 
     public TransactionModel() {} // Wajib untuk Firebase
 
-    public TransactionModel(String id, String buyer, String date, String method, String status, long timestamp, int total, int paid, int remaining, int capitalTotal, boolean isPendingSync) {
+    public TransactionModel(String id, String buyer, String date, String method, String status, long timestamp, int total, int paid, int remaining, int capitalTotal, boolean isPendingSync, List<MenuModel> items) {
         this.id = id;
         this.buyer = buyer;
         this.date = date;
@@ -18,8 +23,9 @@ public class TransactionModel {
         this.total = total;
         this.paid = paid;
         this.remaining = remaining;
-        this.capitalTotal = capitalTotal; // Total HPP / Modal
+        this.capitalTotal = capitalTotal; 
         this.isPendingSync = isPendingSync;
+        this.items = items; // Simpan list belanjaan
     }
 
     public String getId() { return id; }
@@ -44,10 +50,12 @@ public class TransactionModel {
     public void setCapitalTotal(int capitalTotal) { this.capitalTotal = capitalTotal; }
     public boolean isPendingSync() { return isPendingSync; }
     public void setPendingSync(boolean pendingSync) { this.isPendingSync = pendingSync; }
-
-    // 🔥 INI FUNGSI YANG KETINGGALAN SEBELUMNYA 🔥
     public String getOperatorName() { return operatorName; }
     public void setOperatorName(String operatorName) { this.operatorName = operatorName; }
     public String getRefundReason() { return refundReason; }
     public void setRefundReason(String refundReason) { this.refundReason = refundReason; }
+    
+    // Getter & Setter untuk items
+    public List<MenuModel> getItems() { return items; }
+    public void setItems(List<MenuModel> items) { this.items = items; }
 }
