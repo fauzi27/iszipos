@@ -1,10 +1,13 @@
 package com.iszi.pos;
 
-import android.app.AlertDialog;
-import android.content.Intent;
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -36,20 +39,17 @@ public class CashierActivity extends AppCompatActivity {
     private String ownerId;
     private String operatorName = "Admin";
 
-    // Profil Toko untuk Struk
     private String shopName = "ISZI POS";
     private String shopAddress = "Alamat Toko";
     private String shopFooter = "Terima kasih";
     private boolean removeWatermark = false;
 
-    // View Komponen (SESUAI XML KAMU)
     private RecyclerView rvMenus, rvCart;
     private TextView tvCartTotal, tvHoldBadge;
     private EditText inputSearchMenu, inputBuyerName;
     private LinearLayout btnResetCart, btnHold, btnManual;
     private MaterialButton btnCheckout;
 
-    // Data
     private List<MenuModel> masterMenuList = new ArrayList<>();
     private List<MenuModel> filteredMenuList = new ArrayList<>();
     private List<MenuModel> cartList = new ArrayList<>(); 
@@ -90,12 +90,10 @@ public class CashierActivity extends AppCompatActivity {
         btnHold = findViewById(R.id.btnHold);
         btnManual = findViewById(R.id.btnManual);
 
-        // Setup RV Menu
         menuAdapter = new CashierMenuAdapter(filteredMenuList, menu -> addToCart(menu));
         rvMenus.setLayoutManager(new GridLayoutManager(this, 2));
         rvMenus.setAdapter(menuAdapter);
 
-        // Setup RV Cart
         cartAdapter = new CashierCartAdapter(cartList, () -> updateCartTotal());
         rvCart.setLayoutManager(new LinearLayoutManager(this));
         rvCart.setAdapter(cartAdapter);
@@ -118,13 +116,8 @@ public class CashierActivity extends AppCompatActivity {
             showPaymentDialog();
         });
 
-        btnManual.setOnClickListener(v -> {
-            Toast.makeText(this, "Fitur Manual akan segera aktif!", Toast.LENGTH_SHORT).show();
-        });
-
-        btnHold.setOnClickListener(v -> {
-            Toast.makeText(this, "Fitur Gantung Transaksi sedang dirakit!", Toast.LENGTH_SHORT).show();
-        });
+        btnManual.setOnClickListener(v -> Toast.makeText(this, "Fitur Manual akan segera aktif!", Toast.LENGTH_SHORT).show());
+        btnHold.setOnClickListener(v -> Toast.makeText(this, "Fitur Gantung Transaksi sedang dirakit!", Toast.LENGTH_SHORT).show());
 
         inputSearchMenu.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -175,7 +168,7 @@ public class CashierActivity extends AppCompatActivity {
         boolean exists = false;
         for (MenuModel item : cartList) {
             if (item.getId().equals(menu.getId())) {
-                item.setStock(item.getStock() + 1); // QTY
+                item.setStock(item.getStock() + 1); 
                 exists = true;
                 break;
             }
@@ -196,39 +189,38 @@ public class CashierActivity extends AppCompatActivity {
         tvCartTotal.setText(formatRupiah.format(totalBelanja).replace("Rp", "Rp "));
     }
 
+    // 🔥 INI MODAL PEMBAYARAN ELEGAN YANG BARU 🔥
     private void showPaymentDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Pembayaran");
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_checkout);
         
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(40, 20, 40, 20);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
 
-        final TextView tvInfo = new TextView(this);
-        tvInfo.setText("Total Tagihan: " + formatRupiah.format(totalBelanja));
-        tvInfo.setTextSize(18f);
-        tvInfo.setPadding(0, 0, 0, 20);
-        layout.addView(tvInfo);
+        TextView tvCheckoutTotal = dialog.findViewById(R.id.tvCheckoutTotal);
+        EditText inputCheckoutCash = dialog.findViewById(R.id.inputCheckoutCash);
+        MaterialButton btnCheckoutCancel = dialog.findViewById(R.id.btnCheckoutCancel);
+        MaterialButton btnCheckoutQRIS = dialog.findViewById(R.id.btnCheckoutQRIS);
+        MaterialButton btnCheckoutCash = dialog.findViewById(R.id.btnCheckoutCash);
 
-        final EditText inputBayar = new EditText(this);
-        inputBayar.setHint("Jumlah Uang Diterima (Rp)");
-        inputBayar.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-        layout.addView(inputBayar);
+        tvCheckoutTotal.setText(formatRupiah.format(totalBelanja).replace("Rp", "Rp "));
 
-        builder.setView(layout);
+        btnCheckoutCancel.setOnClickListener(v -> dialog.dismiss());
 
-        builder.setPositiveButton("BAYAR TUNAI", (dialog, which) -> {
-            String bayarStr = inputBayar.getText().toString();
+        btnCheckoutQRIS.setOnClickListener(v -> {
+            processTransaction(totalBelanja, "QRIS");
+            dialog.dismiss();
+        });
+
+        btnCheckoutCash.setOnClickListener(v -> {
+            String bayarStr = inputCheckoutCash.getText().toString();
             int dibayar = bayarStr.isEmpty() ? totalBelanja : Integer.parseInt(bayarStr);
             processTransaction(dibayar, "TUNAI");
+            dialog.dismiss();
         });
 
-        builder.setNegativeButton("BAYAR QRIS", (dialog, which) -> {
-            processTransaction(totalBelanja, "QRIS");
-        });
-
-        builder.setNeutralButton("BATAL", null);
-        builder.show();
+        dialog.show();
     }
 
     private void processTransaction(int paidAmount, String method) {
@@ -246,17 +238,21 @@ public class CashierActivity extends AppCompatActivity {
         int change = paidAmount > totalBelanja ? (paidAmount - totalBelanja) : 0;
 
         int capitalTotal = 0;
+        // Kita juga butuh duplikat list untuk disimpan ke Firebase agar rapi
+        List<MenuModel> savedItems = new ArrayList<>();
+        
         for (MenuModel item : cartList) {
             capitalTotal += (item.getCapitalPrice() * item.getStock()); 
+            savedItems.add(item);
         }
 
-        // Ambil nama pembeli dari EditText (Sesuai XML Kamu)
         String buyerName = inputBuyerName.getText().toString().trim();
         if (buyerName.isEmpty()) buyerName = "Umum";
 
+        // 🔥 TAMBAHKAN savedItems (Daftar belanja) SAAT MEMBUAT MODEL TRANSAKSI 🔥
         TransactionModel tx = new TransactionModel(
                 txId, buyerName, dateStr, method, "SUCCESS", timestamp, 
-                totalBelanja, paidAmount, remaining, capitalTotal, false
+                totalBelanja, paidAmount, remaining, capitalTotal, false, savedItems
         );
         tx.setOperatorName(operatorName);
         
@@ -270,19 +266,18 @@ public class CashierActivity extends AppCompatActivity {
         txData.put("total", tx.getTotal());
         txData.put("paid", tx.getPaid());
         txData.put("remaining", tx.getRemaining());
-        txData.put("change", change);
+        txData.put("change", tx.getChange()); // Perbaikan minor jika butuh field change
         txData.put("capitalTotal", tx.getCapitalTotal());
         txData.put("operatorName", tx.getOperatorName());
+        txData.put("items", tx.getItems()); // 🔥 Simpan rincian belanja ke database!
 
         db.collection("users").document(ownerId).collection("transactions").document(txId)
                 .set(txData)
                 .addOnSuccessListener(aVoid -> {
                     btnCheckout.setEnabled(true);
                     
-                    // PANGGIL MODAL STRUK!
                     ReceiptDialog.show(CashierActivity.this, tx, shopName, shopAddress, shopFooter, removeWatermark);
                     
-                    // Reset Keranjang & Input Nama
                     cartList.clear();
                     cartAdapter.notifyDataSetChanged();
                     updateCartTotal();
