@@ -1,26 +1,23 @@
 package com.iszi.pos;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.button.MaterialButton;
-
 import java.net.URLEncoder;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 public class ReceiptDialog {
@@ -28,138 +25,168 @@ public class ReceiptDialog {
     public static void show(Context context, TransactionModel tx, String shopName, String shopAddress, String shopFooter, boolean removeWatermark) {
         if (tx == null) return;
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        View view = LayoutInflater.from(context).inflate(R.layout.dialog_receipt, null);
-        builder.setView(view);
-
-        AlertDialog dialog = builder.create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-
-        TextView tvReceiptShopName = view.findViewById(R.id.tvReceiptShopName);
-        TextView tvReceiptAddress = view.findViewById(R.id.tvReceiptAddress);
-        TextView tvReceiptMeta = view.findViewById(R.id.tvReceiptMeta);
-        TextView tvReceiptPaymentInfo = view.findViewById(R.id.tvReceiptPaymentInfo);
-        TextView tvReceiptFooter = view.findViewById(R.id.tvReceiptFooter);
-        TextView tvReceiptWatermark = view.findViewById(R.id.tvReceiptWatermark);
-        TextView tvStampBatal = view.findViewById(R.id.tvStampBatal);
-        LinearLayout containerReceiptItems = view.findViewById(R.id.containerReceiptItems);
-
-        MaterialButton btnShareWA = view.findViewById(R.id.btnShareWA);
-        MaterialButton btnSharePDF = view.findViewById(R.id.btnSharePDF);
-        MaterialButton btnPrintBT = view.findViewById(R.id.btnPrintBT);
-        ImageButton btnCloseReceipt = view.findViewById(R.id.btnCloseReceipt);
+        Dialog dialog = new Dialog(context);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_receipt);
+        
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#99000000")));
+        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+        dialog.setCancelable(false); 
 
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yy HH:mm", new Locale("id", "ID"));
-
-        tvReceiptShopName.setText(shopName != null ? shopName.toUpperCase() : "ISZI POS");
-        tvReceiptAddress.setText(shopAddress != null ? shopAddress : "Alamat Toko");
-        tvReceiptFooter.setText(shopFooter != null ? shopFooter : "Terima kasih atas kunjungan Anda");
-
-        if (removeWatermark) {
-            tvReceiptWatermark.setVisibility(View.GONE);
-        }
-
-        boolean isRefunded = "REFUNDED".equals(tx.getStatus());
-        if (isRefunded) tvStampBatal.setVisibility(View.VISIBLE);
-
-        long time = tx.getTimestamp() > 0 ? tx.getTimestamp() : System.currentTimeMillis();
-        String invoiceId = "INV-" + time;
         
-        String metaText = "Tgl  : " + sdf.format(new Date(time)) + "\n" +
-                          "No   : " + invoiceId.substring(0, 14) + "\n" +
-                          "Kasir: " + (tx.getOperatorName() != null ? tx.getOperatorName() : "Admin");
-        if (tx.getBuyer() != null && !tx.getBuyer().isEmpty()) {
-            metaText += "\nPlgn : " + tx.getBuyer();
-        }
-        tvReceiptMeta.setText(metaText);
+        // Ambil ID Invoice 8 digit terakhir agar rapi
+        String displayInvoiceId = tx.getId().length() > 8 ? tx.getId().substring(tx.getId().length() - 8) : tx.getId();
 
-        // 🔥 RENDER ITEM DINAMIS SESUAI TRANSAKSI 🔥
-        containerReceiptItems.removeAllViews();
-        int totalItemsCount = 0;
+        // 1. KOP SURAT & META
+        ((TextView) dialog.findViewById(R.id.tvReceiptShopName)).setText(shopName != null ? shopName.toUpperCase() : "ISZI POS");
+        ((TextView) dialog.findViewById(R.id.tvReceiptAddress)).setText(shopAddress != null ? shopAddress : "Alamat Toko");
+        ((TextView) dialog.findViewById(R.id.tvReceiptDate)).setText("Tgl  : " + tx.getDate());
+        ((TextView) dialog.findViewById(R.id.tvReceiptInvoice)).setText("No   : " + displayInvoiceId);
+        ((TextView) dialog.findViewById(R.id.tvReceiptOperator)).setText("Kasir: " + (tx.getOperatorName() != null ? tx.getOperatorName() : "Admin"));
+        ((TextView) dialog.findViewById(R.id.tvReceiptBuyer)).setText("Plgn : " + (tx.getBuyer() != null ? tx.getBuyer() : "Umum"));
+
+        // 2. INJECT RINCIAN ITEM
+        LinearLayout containerItems = dialog.findViewById(R.id.containerReceiptItems);
+        containerItems.removeAllViews();
         
+        int totalQty = 0;
         if (tx.getItems() != null && !tx.getItems().isEmpty()) {
             for (MenuModel item : tx.getItems()) {
-                int qty = item.getStock(); // Menggunakan stock sebagai penampung qty keranjang
-                int subtotal = qty * item.getPrice();
-                totalItemsCount += qty;
+                int qty = item.getStock(); 
+                totalQty += qty;
 
-                TextView tvItem = new TextView(context);
-                String itemName = item.getName();
-                String itemDetail = "  " + qty + "x " + formatRupiah.format(item.getPrice()).replace("Rp", "") + " = " + formatRupiah.format(subtotal).replace("Rp", "");
-                
-                tvItem.setText(itemName + "\n" + itemDetail);
-                tvItem.setTextColor(Color.BLACK);
-                tvItem.setTypeface(Typeface.MONOSPACE);
-                tvItem.setTextSize(12f);
-                tvItem.setPadding(0, 0, 0, 8);
-                containerReceiptItems.addView(tvItem);
+                // Baris 1: Nama Item
+                TextView tvName = new TextView(context);
+                tvName.setText(item.getName());
+                tvName.setTextColor(Color.BLACK);
+                tvName.setTextSize(12f);
+                tvName.setTypeface(android.graphics.Typeface.MONOSPACE);
+                containerItems.addView(tvName);
+
+                // Baris 2: Qty x Harga = Total (Rata Kanan Kiri)
+                LinearLayout rowDetail = new LinearLayout(context);
+                rowDetail.setOrientation(LinearLayout.HORIZONTAL);
+                rowDetail.setWeightSum(2);
+
+                TextView tvQtyPrice = new TextView(context);
+                tvQtyPrice.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                tvQtyPrice.setText("  " + qty + "x " + formatRupiah.format(item.getPrice()).replace("Rp", ""));
+                tvQtyPrice.setTextColor(Color.BLACK);
+                tvQtyPrice.setTextSize(12f);
+                tvQtyPrice.setTypeface(android.graphics.Typeface.MONOSPACE);
+
+                TextView tvSubtotal = new TextView(context);
+                tvSubtotal.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+                tvSubtotal.setText(formatRupiah.format(item.getPrice() * qty).replace("Rp", ""));
+                tvSubtotal.setTextColor(Color.BLACK);
+                tvSubtotal.setTextSize(12f);
+                tvSubtotal.setTypeface(android.graphics.Typeface.MONOSPACE);
+                tvSubtotal.setGravity(android.view.Gravity.END);
+
+                rowDetail.addView(tvQtyPrice);
+                rowDetail.addView(tvSubtotal);
+                containerItems.addView(rowDetail);
             }
-        } else {
-            // Fallback jika transaksi lama yang belum ada itemnya
-            TextView tvItem = new TextView(context);
-            tvItem.setText("1x Item Manual\n   Rp " + formatRupiah.format(tx.getTotal()).replace("Rp", ""));
-            tvItem.setTextColor(Color.BLACK);
-            tvItem.setTypeface(Typeface.MONOSPACE);
-            tvItem.setTextSize(12f);
-            containerReceiptItems.addView(tvItem);
-            totalItemsCount = 1;
         }
 
-        StringBuilder paymentInfo = new StringBuilder();
-        paymentInfo.append("Total Item : ").append(totalItemsCount).append("\n");
-        paymentInfo.append("TOTAL      : ").append(formatRupiah.format(tx.getTotal()).replace("Rp", "Rp ")).append("\n\n");
+        // 3. TOTAL & PEMBAYARAN
+        ((TextView) dialog.findViewById(R.id.tvReceiptTotalItem)).setText(String.valueOf(totalQty));
+        ((TextView) dialog.findViewById(R.id.tvReceiptTotal)).setText(formatRupiah.format(tx.getTotal()).replace("Rp", ""));
+        ((TextView) dialog.findViewById(R.id.tvReceiptMethod)).setText(tx.getMethod() != null ? tx.getMethod() : "TUNAI");
+        ((TextView) dialog.findViewById(R.id.tvReceiptPaid)).setText(formatRupiah.format(tx.getPaid()).replace("Rp", ""));
         
-        if (isRefunded) {
-            paymentInfo.append("Status     : DIBATALKAN\n");
+        LinearLayout rowChange = dialog.findViewById(R.id.rowReceiptChange);
+        LinearLayout rowRemaining = dialog.findViewById(R.id.rowReceiptRemaining);
+        
+        if (tx.getRemaining() > 0) {
+            rowChange.setVisibility(View.GONE);
+            rowRemaining.setVisibility(View.VISIBLE);
+            ((TextView) dialog.findViewById(R.id.tvReceiptRemaining)).setText(formatRupiah.format(tx.getRemaining()).replace("Rp", ""));
+        } else if (tx.getPaid() > tx.getTotal()) {
+            rowChange.setVisibility(View.VISIBLE);
+            rowRemaining.setVisibility(View.GONE);
+            ((TextView) dialog.findViewById(R.id.tvReceiptChange)).setText(formatRupiah.format(tx.getPaid() - tx.getTotal()).replace("Rp", ""));
         } else {
-            paymentInfo.append("Metode     : ").append(tx.getMethod() != null ? tx.getMethod() : "TUNAI").append("\n");
-            paymentInfo.append("Dibayar    : ").append(formatRupiah.format(tx.getPaid()).replace("Rp", "Rp ")).append("\n");
-            if (tx.getRemaining() > 0) {
-                paymentInfo.append("SISA HUTANG: ").append(formatRupiah.format(tx.getRemaining()).replace("Rp", "Rp ")).append("\n");
-            }
+            rowChange.setVisibility(View.GONE);
+            rowRemaining.setVisibility(View.GONE);
         }
-        tvReceiptPaymentInfo.setText(paymentInfo.toString());
 
-        btnCloseReceipt.setOnClickListener(v -> dialog.dismiss());
-        btnSharePDF.setOnClickListener(v -> Toast.makeText(context, "Fitur cetak PDF sedang dirakit!", Toast.LENGTH_SHORT).show());
-        btnPrintBT.setOnClickListener(v -> Toast.makeText(context, "Fitur printer Bluetooth sedang dirakit!", Toast.LENGTH_SHORT).show());
+        // 4. FOOTER & WATERMARK
+        ((TextView) dialog.findViewById(R.id.tvReceiptFooter)).setText(shopFooter != null ? shopFooter : "Terima Kasih");
+        LinearLayout containerWatermark = dialog.findViewById(R.id.containerWatermark);
+        containerWatermark.setVisibility(removeWatermark ? View.GONE : View.VISIBLE);
 
-        btnShareWA.setOnClickListener(v -> {
+        // 5. TOMBOL AKSI
+        dialog.findViewById(R.id.btnReceiptClose).setOnClickListener(v -> dialog.dismiss());
+        dialog.findViewById(R.id.btnReceiptPrint).setOnClickListener(v -> Toast.makeText(context, "Modul Printer Bluetooth sedang disiapkan.", Toast.LENGTH_SHORT).show());
+        dialog.findViewById(R.id.btnReceiptPDF).setOnClickListener(v -> Toast.makeText(context, "Modul Cetak PDF sedang disiapkan.", Toast.LENGTH_SHORT).show());
+
+        // FUNGSI WHATSAPP
+        dialog.findViewById(R.id.btnReceiptWA).setOnClickListener(v -> {
             AlertDialog.Builder waBuilder = new AlertDialog.Builder(context);
             waBuilder.setTitle("Kirim via WhatsApp");
             waBuilder.setMessage("Masukkan nomor WA Pelanggan:");
+            
             final EditText inputWA = new EditText(context);
             inputWA.setHint("Cth: 08123456789");
             inputWA.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
-            waBuilder.setView(inputWA);
+            
+            // Perbaiki tampilan kotak input WA agar rapi di Android 12+
+            LinearLayout layoutInput = new LinearLayout(context);
+            layoutInput.setPadding(50, 20, 50, 0);
+            layoutInput.addView(inputWA, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            waBuilder.setView(layoutInput);
+            
             waBuilder.setPositiveButton("Kirim", (dialogWa, which) -> {
                 String phone = inputWA.getText().toString().trim();
                 if (phone.isEmpty()) { Toast.makeText(context, "Nomor WA kosong!", Toast.LENGTH_SHORT).show(); return; }
+                
+                // Ubah angka 0 di depan menjadi 62
                 if (phone.startsWith("0")) phone = "62" + phone.substring(1);
 
-                String waText = "*STRUK PEMBELIAN - " + (shopName != null ? shopName.toUpperCase() : "ISZI") + "*\n";
-                waText += "No: " + invoiceId.substring(0, 14) + "\n";
+                // Rakit pesan WA
+                StringBuilder waText = new StringBuilder();
+                waText.append("*STRUK PEMBELIAN - ").append(shopName != null ? shopName.toUpperCase() : "ISZI POS").append("*\n");
+                waText.append("No: ").append(displayInvoiceId).append("\n");
+                waText.append("Tgl: ").append(tx.getDate()).append("\n");
+                waText.append("Kasir: ").append(tx.getOperatorName()).append("\n");
+                waText.append("--------------------------------\n");
                 
-                // Tambahkan rincian belanja ke pesan WA
                 if (tx.getItems() != null) {
                     for (MenuModel item : tx.getItems()) {
-                        waText += item.getName() + " (" + item.getStock() + "x)\n";
+                        waText.append(item.getName()).append("\n");
+                        waText.append(item.getStock()).append("x Rp ").append(formatRupiah.format(item.getPrice()).replace("Rp", ""));
+                        waText.append(" = Rp ").append(formatRupiah.format(item.getPrice() * item.getStock()).replace("Rp", "")).append("\n");
                     }
                 }
                 
-                waText += "\nTotal: *Rp " + formatRupiah.format(tx.getTotal()).replace("Rp", "") + "*\n\n";
-                waText += "Terima kasih atas kunjungan Anda.";
+                waText.append("--------------------------------\n");
+                waText.append("Total Item : ").append(tx.getItems() != null ? tx.getItems().size() : 0).append("\n");
+                waText.append("Total Harga: *Rp ").append(formatRupiah.format(tx.getTotal()).replace("Rp", "")).append("*\n");
+                
+                if ("REFUNDED".equals(tx.getStatus())) {
+                    waText.append("Status     : *❌ DIBATALKAN*\n");
+                } else {
+                    waText.append("Status     : *").append(tx.getMethod() != null ? tx.getMethod() : "TUNAI").append("*\n");
+                    if (tx.getRemaining() > 0) {
+                        waText.append("Sisa Hutang: Rp ").append(formatRupiah.format(tx.getRemaining()).replace("Rp", "")).append("\n");
+                    }
+                }
+                
+                waText.append("\n").append(shopFooter != null ? shopFooter : "Terima kasih");
+                if (!removeWatermark) {
+                    waText.append("\n\n--------------------------------\nPowered by ISZI POS Cloud\nAplikasi Kasir Gratis & Mudah");
+                }
 
+                // Kirim Intent ke Aplikasi WA
                 try {
-                    String url = "https://api.whatsapp.com/send?phone=" + phone + "&text=" + URLEncoder.encode(waText, "UTF-8");
+                    String url = "https://api.whatsapp.com/send?phone=" + phone + "&text=" + URLEncoder.encode(waText.toString(), "UTF-8");
                     Intent intent = new Intent(Intent.ACTION_VIEW);
                     intent.setData(Uri.parse(url));
                     context.startActivity(intent);
                 } catch (Exception e) {
-                    Toast.makeText(context, "Gagal membuka WhatsApp", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Aplikasi WhatsApp tidak ditemukan", Toast.LENGTH_SHORT).show();
                 }
             });
             waBuilder.setNegativeButton("Batal", null);
