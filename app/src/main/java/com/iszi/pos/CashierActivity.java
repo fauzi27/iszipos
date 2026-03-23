@@ -59,7 +59,7 @@ public class CashierActivity extends AppCompatActivity {
     // 🔥 Kantong Penyimpanan Sementara (Fitur Gantung)
     private List<HoldOrderModel> holdList = new ArrayList<>();
 
-    private CashierMenuAdapter menuAdapter;
+    private MenuCashierAdapter menuAdapter;
     private CashierCartAdapter cartAdapter;
 
     private int totalBelanja = 0;
