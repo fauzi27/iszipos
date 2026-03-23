@@ -16,13 +16,27 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.button.MaterialButton;
+
 import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.util.Locale;
 
 public class ReceiptDialog {
 
+    // 🔥 1. INTERFACE UNTUK LAPORAN (ADMIN ACTIONS) 🔥
+    public interface ReceiptActionListener {
+        void onRefund(TransactionModel tx);
+        void onPayDebt(TransactionModel tx);
+    }
+
+    // 🔥 2. FUNGSI PEMANGGIL UNTUK KASIR (Tanpa Tombol Admin) 🔥
     public static void show(Context context, TransactionModel tx, String shopName, String shopAddress, String shopFooter, boolean removeWatermark) {
+        show(context, tx, shopName, shopAddress, shopFooter, removeWatermark, null);
+    }
+
+    // 🔥 3. FUNGSI UTAMA (Menampilkan Struk + Semua Tombol) 🔥
+    public static void show(Context context, TransactionModel tx, String shopName, String shopAddress, String shopFooter, boolean removeWatermark, ReceiptActionListener listener) {
         if (tx == null) return;
 
         Dialog dialog = new Dialog(context);
@@ -31,14 +45,13 @@ public class ReceiptDialog {
         
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#99000000")));
         dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
-        dialog.setCancelable(false); 
+        dialog.setCancelable(true); 
 
         NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
-        
-        // Ambil ID Invoice 8 digit terakhir agar rapi
         String displayInvoiceId = tx.getId().length() > 8 ? tx.getId().substring(tx.getId().length() - 8) : tx.getId();
+        boolean isRefunded = "REFUNDED".equals(tx.getStatus());
 
-        // 1. KOP SURAT & META
+        // A. KOP SURAT & META
         ((TextView) dialog.findViewById(R.id.tvReceiptShopName)).setText(shopName != null ? shopName.toUpperCase() : "ISZI POS");
         ((TextView) dialog.findViewById(R.id.tvReceiptAddress)).setText(shopAddress != null ? shopAddress : "Alamat Toko");
         ((TextView) dialog.findViewById(R.id.tvReceiptDate)).setText("Tgl  : " + tx.getDate());
@@ -46,7 +59,7 @@ public class ReceiptDialog {
         ((TextView) dialog.findViewById(R.id.tvReceiptOperator)).setText("Kasir: " + (tx.getOperatorName() != null ? tx.getOperatorName() : "Admin"));
         ((TextView) dialog.findViewById(R.id.tvReceiptBuyer)).setText("Plgn : " + (tx.getBuyer() != null ? tx.getBuyer() : "Umum"));
 
-        // 2. INJECT RINCIAN ITEM
+        // B. INJECT RINCIAN ITEM
         LinearLayout containerItems = dialog.findViewById(R.id.containerReceiptItems);
         containerItems.removeAllViews();
         
@@ -58,13 +71,13 @@ public class ReceiptDialog {
 
                 // Baris 1: Nama Item
                 TextView tvName = new TextView(context);
-                tvName.setText(item.getName());
+                tvName.setText(item.getName() + (isRefunded ? " (BATAL)" : ""));
                 tvName.setTextColor(Color.BLACK);
                 tvName.setTextSize(12f);
                 tvName.setTypeface(android.graphics.Typeface.MONOSPACE);
                 containerItems.addView(tvName);
 
-                // Baris 2: Qty x Harga = Total (Rata Kanan Kiri)
+                // Baris 2: Qty x Harga = Total
                 LinearLayout rowDetail = new LinearLayout(context);
                 rowDetail.setOrientation(LinearLayout.HORIZONTAL);
                 rowDetail.setWeightSum(2);
@@ -90,7 +103,7 @@ public class ReceiptDialog {
             }
         }
 
-        // 3. TOTAL & PEMBAYARAN
+        // C. TOTAL & PEMBAYARAN
         ((TextView) dialog.findViewById(R.id.tvReceiptTotalItem)).setText(String.valueOf(totalQty));
         ((TextView) dialog.findViewById(R.id.tvReceiptTotal)).setText(formatRupiah.format(tx.getTotal()).replace("Rp", ""));
         ((TextView) dialog.findViewById(R.id.tvReceiptMethod)).setText(tx.getMethod() != null ? tx.getMethod() : "TUNAI");
@@ -112,17 +125,39 @@ public class ReceiptDialog {
             rowRemaining.setVisibility(View.GONE);
         }
 
-        // 4. FOOTER & WATERMARK
+        // D. FOOTER & WATERMARK
         ((TextView) dialog.findViewById(R.id.tvReceiptFooter)).setText(shopFooter != null ? shopFooter : "Terima Kasih");
-        LinearLayout containerWatermark = dialog.findViewById(R.id.containerWatermark);
-        containerWatermark.setVisibility(removeWatermark ? View.GONE : View.VISIBLE);
+        dialog.findViewById(R.id.containerWatermark).setVisibility(removeWatermark ? View.GONE : View.VISIBLE);
 
-        // 5. TOMBOL AKSI
+        // 🔥 E. LOGIKA TOMBOL ADMIN (Khusus dibuka dari Laporan) 🔥
+        LinearLayout containerAdminActions = dialog.findViewById(R.id.containerAdminActions);
+        if (containerAdminActions != null) {
+            MaterialButton btnReceiptRefund = dialog.findViewById(R.id.btnReceiptRefund);
+            MaterialButton btnReceiptPayDebt = dialog.findViewById(R.id.btnReceiptPayDebt);
+
+            if (listener != null) {
+                containerAdminActions.setVisibility(View.VISIBLE);
+                
+                if (isRefunded) {
+                    btnReceiptRefund.setVisibility(View.GONE);
+                    btnReceiptPayDebt.setVisibility(View.GONE);
+                } else {
+                    btnReceiptRefund.setVisibility(View.VISIBLE);
+                    btnReceiptPayDebt.setVisibility(tx.getRemaining() > 0 ? View.VISIBLE : View.GONE);
+                }
+
+                btnReceiptRefund.setOnClickListener(v -> { dialog.dismiss(); listener.onRefund(tx); });
+                btnReceiptPayDebt.setOnClickListener(v -> { dialog.dismiss(); listener.onPayDebt(tx); });
+            } else {
+                containerAdminActions.setVisibility(View.GONE);
+            }
+        }
+
+        // 🔥 F. TOMBOL STANDAR & WHATSAPP API (FULL LOGIC) 🔥
         dialog.findViewById(R.id.btnReceiptClose).setOnClickListener(v -> dialog.dismiss());
         dialog.findViewById(R.id.btnReceiptPrint).setOnClickListener(v -> Toast.makeText(context, "Modul Printer Bluetooth sedang disiapkan.", Toast.LENGTH_SHORT).show());
-        dialog.findViewById(R.id.btnReceiptPDF).setOnClickListener(v -> Toast.makeText(context, "Modul Cetak PDF sedang disiapkan.", Toast.LENGTH_SHORT).show());
+        dialog.findViewById(R.id.btnReceiptPDF).setOnClickListener(v -> Toast.makeText(context, "Gunakan fitur PDF di layar utama Laporan.", Toast.LENGTH_SHORT).show());
 
-        // FUNGSI WHATSAPP
         dialog.findViewById(R.id.btnReceiptWA).setOnClickListener(v -> {
             AlertDialog.Builder waBuilder = new AlertDialog.Builder(context);
             waBuilder.setTitle("Kirim via WhatsApp");
@@ -132,7 +167,6 @@ public class ReceiptDialog {
             inputWA.setHint("Cth: 08123456789");
             inputWA.setInputType(android.text.InputType.TYPE_CLASS_PHONE);
             
-            // Perbaiki tampilan kotak input WA agar rapi di Android 12+
             LinearLayout layoutInput = new LinearLayout(context);
             layoutInput.setPadding(50, 20, 50, 0);
             layoutInput.addView(inputWA, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -142,15 +176,13 @@ public class ReceiptDialog {
                 String phone = inputWA.getText().toString().trim();
                 if (phone.isEmpty()) { Toast.makeText(context, "Nomor WA kosong!", Toast.LENGTH_SHORT).show(); return; }
                 
-                // Ubah angka 0 di depan menjadi 62
                 if (phone.startsWith("0")) phone = "62" + phone.substring(1);
 
-                // Rakit pesan WA
                 StringBuilder waText = new StringBuilder();
                 waText.append("*STRUK PEMBELIAN - ").append(shopName != null ? shopName.toUpperCase() : "ISZI POS").append("*\n");
                 waText.append("No: ").append(displayInvoiceId).append("\n");
                 waText.append("Tgl: ").append(tx.getDate()).append("\n");
-                waText.append("Kasir: ").append(tx.getOperatorName()).append("\n");
+                waText.append("Kasir: ").append(tx.getOperatorName() != null ? tx.getOperatorName() : "Admin").append("\n");
                 waText.append("--------------------------------\n");
                 
                 if (tx.getItems() != null) {
@@ -162,10 +194,9 @@ public class ReceiptDialog {
                 }
                 
                 waText.append("--------------------------------\n");
-                waText.append("Total Item : ").append(tx.getItems() != null ? tx.getItems().size() : 0).append("\n");
                 waText.append("Total Harga: *Rp ").append(formatRupiah.format(tx.getTotal()).replace("Rp", "")).append("*\n");
                 
-                if ("REFUNDED".equals(tx.getStatus())) {
+                if (isRefunded) {
                     waText.append("Status     : *❌ DIBATALKAN*\n");
                 } else {
                     waText.append("Status     : *").append(tx.getMethod() != null ? tx.getMethod() : "TUNAI").append("*\n");
@@ -179,7 +210,6 @@ public class ReceiptDialog {
                     waText.append("\n\n--------------------------------\nPowered by ISZI POS Cloud\nAplikasi Kasir Gratis & Mudah");
                 }
 
-                // Kirim Intent ke Aplikasi WA
                 try {
                     String url = "https://api.whatsapp.com/send?phone=" + phone + "&text=" + URLEncoder.encode(waText.toString(), "UTF-8");
                     Intent intent = new Intent(Intent.ACTION_VIEW);
