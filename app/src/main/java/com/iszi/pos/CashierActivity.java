@@ -327,7 +327,7 @@ public class CashierActivity extends AppCompatActivity {
         }
         tvCartTotal.setText(formatRupiah.format(totalBelanja).replace("Rp", "Rp "));
     }
-
+    // 🔥 UPDATE MODAL PEMBAYARAN: Menampilkan Rincian Belanjaan 🔥
     private void showPaymentDialog() {
         Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -338,9 +338,34 @@ public class CashierActivity extends AppCompatActivity {
 
         TextView tvCheckoutTotal = dialog.findViewById(R.id.tvCheckoutTotal);
         EditText inputCheckoutCash = dialog.findViewById(R.id.inputCheckoutCash);
+        LinearLayout containerCheckoutItems = dialog.findViewById(R.id.containerCheckoutItems);
         MaterialButton btnCheckoutCancel = dialog.findViewById(R.id.btnCheckoutCancel);
         MaterialButton btnCheckoutQRIS = dialog.findViewById(R.id.btnCheckoutQRIS);
         MaterialButton btnCheckoutCash = dialog.findViewById(R.id.btnCheckoutCash);
+
+        // Render Rincian Belanja ke dalam Pop-up
+        containerCheckoutItems.removeAllViews();
+        for (MenuModel item : cartList) {
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setPadding(0, 8, 0, 8);
+
+            TextView tvItemName = new TextView(this);
+            tvItemName.setText(item.getName());
+            tvItemName.setTextColor(Color.WHITE);
+            tvItemName.setTextSize(14f);
+            tvItemName.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+            TextView tvItemPrice = new TextView(this);
+            int subtotal = item.getPrice() * item.getStock(); // getStock = Qty
+            tvItemPrice.setText(item.getStock() + "x " + formatRupiah.format(subtotal).replace("Rp", ""));
+            tvItemPrice.setTextColor(Color.parseColor("#9CA3AF"));
+            tvItemPrice.setTextSize(12f);
+
+            row.addView(tvItemName);
+            row.addView(tvItemPrice);
+            containerCheckoutItems.addView(row);
+        }
 
         tvCheckoutTotal.setText(formatRupiah.format(totalBelanja).replace("Rp", "Rp "));
 
@@ -355,6 +380,8 @@ public class CashierActivity extends AppCompatActivity {
 
         dialog.show();
     }
+
+    
 
     private void processTransaction(int paidAmount, String method) {
         if (ownerId == null) return;
