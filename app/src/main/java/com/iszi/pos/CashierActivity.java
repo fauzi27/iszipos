@@ -94,7 +94,7 @@ public class CashierActivity extends AppCompatActivity {
         btnManual = findViewById(R.id.btnManual);
         btnHoldList = findViewById(R.id.btnHoldList);
 
-        menuAdapter = new CashierMenuAdapter(filteredMenuList, menu -> addToCart(menu));
+        menuAdapter = new MenuCashierAdapter(filteredMenuList, menu -> addToCart(menu));
         rvMenus.setLayoutManager(new GridLayoutManager(this, 2));
         rvMenus.setAdapter(menuAdapter);
 
