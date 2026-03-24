@@ -61,7 +61,7 @@
                     android:padding="16dp">
 
                     <TextView
-                        android:text="Profil Usaha & Struk"
+                        android:text="Profil Usaha &amp; Struk"
                         android:textStyle="bold"
                         android:textColor="?attr/colorTextMain"
                         android:layout_marginBottom="12dp"/>
