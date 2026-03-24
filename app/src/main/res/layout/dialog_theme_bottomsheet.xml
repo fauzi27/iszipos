@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_input_modern"
+    android:padding="24dp"
+    android:backgroundTint="#1E293B">
+
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center"
+        android:background="#475569"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pilih Tema Tampilan"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"/>
+        
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sesuaikan warna aplikasi untuk kenyamanan mata Anda."
+        android:textColor="#9CA3AF"
+        android:textSize="12sp"
+        android:layout_marginBottom="24dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnThemeAuto"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:text="Ikuti Sistem HP (Auto)"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="#0F172A"
+        app:strokeColor="#3B82F6"
+        app:strokeWidth="1dp"
+        app:cornerRadius="8dp"
+        android:layout_marginBottom="12dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnThemeDark"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:text="Mode Malam (Dark)"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="#0F172A"
+        app:cornerRadius="8dp"
+        android:layout_marginBottom="12dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnThemeLight"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:text="Mode Terang (Light)"
+        android:textColor="#0F172A"
+        app:backgroundTint="#F8FAFC"
+        app:cornerRadius="8dp"
+        android:layout_marginBottom="12dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnThemeBrand"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:text="Tema F&amp;B (Kopi &amp; Hangat)"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="#B45309"
+        app:cornerRadius="8dp"/>
+
+</LinearLayout>
