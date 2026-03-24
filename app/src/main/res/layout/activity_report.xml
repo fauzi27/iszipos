@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#0F172A">
+    android:background="?attr/colorBgRoot">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,7 +12,7 @@
         android:orientation="horizontal"
         android:padding="16dp"
         android:gravity="center_vertical"
-        android:background="#1E293B">
+        android:background="?attr/colorBgCard">
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -20,14 +20,14 @@
             android:layout_height="36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_revert"
-            app:tint="#FFFFFF"/>
+            app:tint="?attr/colorTextMain"/>
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Laporan"
-            android:textColor="#FFFFFF"
+            android:textColor="?attr/colorTextMain"
             android:textSize="20sp"
             android:textStyle="bold"
             android:layout_marginStart="8dp"/>
@@ -78,6 +78,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:background="@drawable/bg_input_modern"
+                android:backgroundTint="?attr/colorBgCard"
                 android:gravity="center"
                 android:padding="12dp"
                 android:layout_marginBottom="16dp">
@@ -97,7 +98,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="24 Mar 2026"
-                    android:textColor="#FFFFFF"
+                    android:textColor="?attr/colorTextMain"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:gravity="center"/>
@@ -117,6 +118,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:background="@drawable/bg_input_modern"
+                android:backgroundTint="?attr/colorBgCard"
                 android:padding="12dp"
                 android:layout_marginBottom="16dp">
 
@@ -147,9 +149,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="40dp"
                             android:text="Mingguan"
-                            android:textColor="#9CA3AF"
+                            android:textColor="?attr/colorTextSub"
                             android:textSize="12sp"
-                            app:backgroundTint="#334155"
+                            app:backgroundTint="?attr/colorBgRoot"
                             app:cornerRadius="20dp"
                             android:layout_marginEnd="8dp"/>
 
@@ -158,9 +160,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="40dp"
                             android:text="Bulanan"
-                            android:textColor="#9CA3AF"
+                            android:textColor="?attr/colorTextSub"
                             android:textSize="12sp"
-                            app:backgroundTint="#334155"
+                            app:backgroundTint="?attr/colorBgRoot"
                             app:cornerRadius="20dp"
                             android:layout_marginEnd="8dp"/>
                             
@@ -180,9 +182,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="45dp"
                     android:background="@drawable/bg_circle_button"
-                    android:backgroundTint="#0F172A"
-                    android:textColor="#FFFFFF"
-                    android:textColorHint="#475569"
+                    android:backgroundTint="?attr/colorBgRoot"
+                    android:textColor="?attr/colorTextMain"
+                    android:textColorHint="?attr/colorTextSub"
                     android:paddingHorizontal="16dp"
                     android:hint="Cari pelanggan, metode..."/>
             </LinearLayout>
@@ -191,6 +193,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_input_modern"
+                android:backgroundTint="?attr/colorBgCard"
                 android:padding="20dp"
                 android:layout_marginBottom="16dp"
                 android:clipToPadding="false">
@@ -203,8 +206,8 @@
                     android:layout_marginEnd="-10dp"
                     android:layout_marginTop="-10dp"
                     android:background="@drawable/bg_circle_button"
-                    android:backgroundTint="#4338CA"
-                    android:alpha="0.8"/>
+                    android:backgroundTint="?attr/colorBorder"
+                    android:alpha="0.3"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -216,28 +219,28 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="OMZET KOTOR"
-                        android:textColor="#9CA3AF"
+                        android:textColor="?attr/colorTextSub"
                         android:textSize="10sp"/>
                     <TextView
                         android:id="@+id/tvTotalOmzet"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Rp 0"
-                        android:textColor="#FFFFFF"
+                        android:textColor="?attr/colorTextMain"
                         android:textSize="32sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="20dp"/>
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#334155" android:layout_marginBottom="16dp"/>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorBorder" android:layout_marginBottom="16dp"/>
 
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2" android:layout_marginBottom="12dp">
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Masuk Tunai" android:textColor="#9CA3AF" android:textSize="12sp"/>
-                            <TextView android:id="@+id/tvTotalTunai" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 0" android:textColor="#FFFFFF" android:textSize="14sp" android:textStyle="bold"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Masuk Tunai" android:textColor="?attr/colorTextSub" android:textSize="12sp"/>
+                            <TextView android:id="@+id/tvTotalTunai" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 0" android:textColor="?attr/colorTextMain" android:textSize="14sp" android:textStyle="bold"/>
                         </LinearLayout>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Masuk QRIS" android:textColor="#9CA3AF" android:textSize="12sp"/>
-                            <TextView android:id="@+id/tvTotalQRIS" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 0" android:textColor="#FFFFFF" android:textSize="14sp" android:textStyle="bold"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Masuk QRIS" android:textColor="?attr/colorTextSub" android:textSize="12sp"/>
+                            <TextView android:id="@+id/tvTotalQRIS" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 0" android:textColor="?attr/colorTextMain" android:textSize="14sp" android:textStyle="bold"/>
                         </LinearLayout>
                     </LinearLayout>
 
@@ -247,14 +250,14 @@
                             <TextView android:id="@+id/tvTotalHutang" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 0" android:textColor="#EF4444" android:textSize="14sp" android:textStyle="bold"/>
                         </LinearLayout>
                         <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nota Sukses" android:textColor="#9CA3AF" android:textSize="12sp"/>
-                            <TextView android:id="@+id/tvTotalNota" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 Nota" android:textColor="#FFFFFF" android:textSize="14sp" android:textStyle="bold"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nota Sukses" android:textColor="?attr/colorTextSub" android:textSize="12sp"/>
+                            <TextView android:id="@+id/tvTotalNota" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 Nota" android:textColor="?attr/colorTextMain" android:textSize="14sp" android:textStyle="bold"/>
                         </LinearLayout>
                     </LinearLayout>
 
-                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#334155" android:layout_marginBottom="16dp"/>
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorBorder" android:layout_marginBottom="16dp"/>
 
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Laba / Keuntungan Bersih" android:textColor="#9CA3AF" android:textSize="10sp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Laba / Keuntungan Bersih" android:textColor="?attr/colorTextSub" android:textSize="10sp"/>
                     <TextView android:id="@+id/tvTotalLaba" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Rp 0" android:textColor="#10B981" android:textSize="18sp" android:textStyle="bold"/>
                 </LinearLayout>
             </RelativeLayout>
