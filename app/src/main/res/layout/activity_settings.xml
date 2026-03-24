@@ -6,6 +6,7 @@
     android:orientation="vertical"
     android:background="?attr/colorBgRoot">
 
+    <!-- HEADER -->
     <LinearLayout 
         android:layout_width="match_parent" 
         android:layout_height="wrap_content" 
@@ -13,7 +14,7 @@
         android:padding="16dp" 
         android:gravity="center_vertical" 
         android:background="?attr/colorBgCard">
-        
+
         <ImageButton 
             android:id="@+id/btnBack" 
             android:layout_width="36dp" 
@@ -21,7 +22,7 @@
             android:background="?attr/selectableItemBackgroundBorderless" 
             android:src="@android:drawable/ic_menu_revert" 
             app:tint="?attr/colorTextMain"/>
-            
+
         <TextView 
             android:layout_width="0dp" 
             android:layout_height="wrap_content" 
@@ -33,116 +34,154 @@
             android:layout_marginStart="8dp"/>
     </LinearLayout>
 
+    <!-- CONTENT -->
     <ScrollView 
         android:layout_width="match_parent" 
         android:layout_height="match_parent" 
         android:padding="16dp" 
         android:scrollbars="none">
-        
+
         <LinearLayout 
             android:layout_width="match_parent" 
             android:layout_height="wrap_content" 
             android:orientation="vertical">
 
+            <!-- PROFIL USAHA -->
             <androidx.cardview.widget.CardView 
                 android:layout_width="match_parent" 
                 android:layout_height="wrap_content" 
                 app:cardBackgroundColor="?attr/colorBgCard" 
                 app:cardCornerRadius="8dp" 
                 android:layout_marginBottom="16dp">
-                
+
                 <LinearLayout 
                     android:layout_width="match_parent" 
                     android:layout_height="wrap_content" 
                     android:orientation="vertical" 
                     android:padding="16dp">
-                    
-                    <LinearLayout 
-                        android:layout_width="match_parent" 
-                        android:layout_height="wrap_content" 
-                        android:orientation="horizontal" 
-                        android:layout_marginBottom="16dp">
-                        <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@android:drawable/ic_menu_edit" app:tint="#3B82F6"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Profil Usaha &amp; Struk" android:textColor="?attr/colorTextMain" android:textSize="16sp" android:textStyle="bold" android:layout_marginStart="8dp"/>
-                    </LinearLayout>
-                    
-                    <EditText android:id="@+id/inputShopName" android:layout_width="match_parent" android:layout_height="45dp" android:background="@drawable/bg_input_modern" android:backgroundTint="?attr/colorBgRoot" android:textColor="?attr/colorTextMain" android:paddingHorizontal="12dp" android:hint="Nama Usaha" android:textColorHint="?attr/colorTextSub" android:layout_marginBottom="12dp"/>
-                    
-                    <EditText android:id="@+id/inputShopAddress" android:layout_width="match_parent" android:layout_height="80dp" android:gravity="top|start" android:background="@drawable/bg_input_modern" android:backgroundTint="?attr/colorBgRoot" android:textColor="?attr/colorTextMain" android:padding="12dp" android:hint="Alamat Cabang" android:textColorHint="?attr/colorTextSub" android:layout_marginBottom="12dp"/>
-                    
-                    <EditText android:id="@+id/inputFooter" android:layout_width="match_parent" android:layout_height="60dp" android:gravity="top|start" android:background="@drawable/bg_input_modern" android:backgroundTint="?attr/colorBgRoot" android:textColor="?attr/colorTextMain" android:padding="12dp" android:hint="Pesan Footer" android:textColorHint="?attr/colorTextSub" android:layout_marginBottom="12dp"/>
-                    
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:background="@drawable/bg_input_modern" android:backgroundTint="?attr/colorBgRoot" android:padding="12dp" android:layout_marginBottom="12dp" android:gravity="center_vertical">
-                        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Hapus Watermark Struk" android:textColor="?attr/colorTextMain" android:textStyle="bold"/>
-                        <androidx.appcompat.widget.SwitchCompat android:id="@+id/switchWatermark" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-                    </LinearLayout>
-                    
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnSaveProfile" android:layout_width="match_parent" android:layout_height="50dp" android:text="Simpan Pengaturan" android:textColor="#FFFFFF" app:backgroundTint="#3B82F6" app:cornerRadius="8dp"/>
+
+                    <TextView
+                        android:text="Profil Usaha & Struk"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorTextMain"
+                        android:layout_marginBottom="12dp"/>
+
+                    <EditText android:id="@+id/inputShopName"
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:hint="Nama Usaha"
+                        android:layout_marginBottom="12dp"/>
+
+                    <EditText android:id="@+id/inputShopAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:hint="Alamat Cabang"
+                        android:layout_marginBottom="12dp"/>
+
+                    <EditText android:id="@+id/inputFooter"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:hint="Pesan Footer"
+                        android:layout_marginBottom="12dp"/>
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switchWatermark"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hapus Watermark"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSaveProfile"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:text="Simpan Pengaturan"
+                        android:layout_marginTop="12dp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
+            <!-- 🔥 PRINTER (FIX UTAMA) -->
             <androidx.cardview.widget.CardView 
                 android:layout_width="match_parent" 
                 android:layout_height="wrap_content" 
                 app:cardBackgroundColor="?attr/colorBgCard" 
                 app:cardCornerRadius="8dp" 
                 android:layout_marginBottom="16dp">
-                
+
                 <LinearLayout 
                     android:layout_width="match_parent" 
                     android:layout_height="wrap_content" 
                     android:orientation="vertical" 
                     android:padding="16dp">
-                    
-                    <LinearLayout 
-                        android:layout_width="match_parent" 
-                        android:layout_height="wrap_content" 
-                        android:orientation="horizontal" 
-                        android:layout_marginBottom="12dp">
-                        <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@android:drawable/ic_menu_myplaces" app:tint="#10B981"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Akun Multi-Kasir" android:textColor="?attr/colorTextMain" android:textSize="16sp" android:textStyle="bold" android:layout_marginStart="8dp"/>
-                    </LinearLayout>
-                    
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Buat akun terpisah untuk pegawai Anda." android:textColor="?attr/colorTextSub" android:textSize="12sp" android:layout_marginBottom="12dp"/>
-                    
-                    <EditText android:id="@+id/inputEmpName" android:layout_width="match_parent" android:layout_height="45dp" android:background="@drawable/bg_input_modern" android:backgroundTint="?attr/colorBgRoot" android:textColor="?attr/colorTextMain" android:paddingHorizontal="12dp" android:hint="Nama Panggilan Kasir" android:textColorHint="?attr/colorTextSub" android:layout_marginBottom="8dp"/>
-                    
-                    <EditText android:id="@+id/inputEmpId" android:layout_width="match_parent" android:layout_height="45dp" android:background="@drawable/bg_input_modern" android:backgroundTint="?attr/colorBgRoot" android:textColor="?attr/colorTextMain" android:paddingHorizontal="12dp" android:hint="User ID Login (Cth: budi123)" android:textColorHint="?attr/colorTextSub" android:layout_marginBottom="8dp"/>
-                    
-                    <EditText android:id="@+id/inputEmpPass" android:layout_width="match_parent" android:layout_height="45dp" android:background="@drawable/bg_input_modern" android:backgroundTint="?attr/colorBgRoot" android:textColor="?attr/colorTextMain" android:paddingHorizontal="12dp" android:hint="Password (Min 6 Karakter)" android:textColorHint="?attr/colorTextSub" android:inputType="textPassword" android:layout_marginBottom="16dp"/>
-                    
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnAddEmployee" android:layout_width="match_parent" android:layout_height="50dp" android:text="Daftarkan Karyawan" android:textColor="#FFFFFF" app:backgroundTint="#10B981" app:cornerRadius="8dp"/>
+
+                    <TextView
+                        android:text="Printer Thermal"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorTextMain"
+                        android:layout_marginBottom="12dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnConnectPrinter"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:text="Pilih Printer"
+                        android:textColor="#FFFFFF"
+                        app:backgroundTint="#F59E0B"
+                        app:cornerRadius="8dp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Kelola Akses Karyawan" android:textColor="?attr/colorTextMain" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="12dp"/>
-            <androidx.recyclerview.widget.RecyclerView android:id="@+id/rvEmployees" android:layout_width="match_parent" android:layout_height="wrap_content" android:nestedScrollingEnabled="false" android:layout_marginBottom="16dp"/>
-
+            <!-- KARYAWAN -->
             <androidx.cardview.widget.CardView 
                 android:layout_width="match_parent" 
                 android:layout_height="wrap_content" 
-                app:cardBackgroundColor="#064E3B" 
+                app:cardBackgroundColor="?attr/colorBgCard" 
                 app:cardCornerRadius="8dp" 
-                android:layout_marginBottom="32dp">
-                
+                android:layout_marginBottom="16dp">
+
                 <LinearLayout 
                     android:layout_width="match_parent" 
                     android:layout_height="wrap_content" 
                     android:orientation="vertical" 
                     android:padding="16dp">
-                    
-                    <LinearLayout 
-                        android:layout_width="match_parent" 
-                        android:layout_height="wrap_content" 
-                        android:orientation="horizontal" 
-                        android:layout_marginBottom="12dp">
-                        <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@android:drawable/ic_menu_save" app:tint="#34D399"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Backup Database (Excel)" android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:layout_marginStart="8dp"/>
-                    </LinearLayout>
-                    
-                    <com.google.android.material.button.MaterialButton android:id="@+id/btnBackup" android:layout_width="match_parent" android:layout_height="50dp" android:text="Unduh Backup" android:textColor="#FFFFFF" app:backgroundTint="#047857" app:cornerRadius="8dp"/>
+
+                    <EditText android:id="@+id/inputEmpName"
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:hint="Nama Kasir"/>
+
+                    <EditText android:id="@+id/inputEmpId"
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:hint="User ID"/>
+
+                    <EditText android:id="@+id/inputEmpPass"
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:hint="Password"
+                        android:inputType="textPassword"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAddEmployee"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:text="Tambah Karyawan"
+                        android:layout_marginTop="12dp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
+            <!-- LIST -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvEmployees"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- BACKUP -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBackup"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="Backup Data"/>
 
         </LinearLayout>
     </ScrollView>
