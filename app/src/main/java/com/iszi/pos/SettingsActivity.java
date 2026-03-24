@@ -1,9 +1,17 @@
 package com.iszi.pos;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -12,6 +20,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,18 +40,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class SettingsActivity extends AppCompatActivity {
 
     private EditText inputShopName, inputShopAddress, inputFooter, inputEmpName, inputEmpId, inputEmpPass;
     private SwitchCompat switchWatermark;
-    private MaterialButton btnSaveProfile, btnAddEmployee, btnBackup;
+    private MaterialButton btnSaveProfile, btnAddEmployee, btnConnectPrinter, btnBackup;
     private ImageButton btnBack;
     private RecyclerView rvEmployees;
 
     private FirebaseFirestore db;
     private FirebaseAuth auth;
-    private FirebaseAuth secondaryAuth; // 🔥 Mesin pencetak Karyawan Rahasia
+    private FirebaseAuth secondaryAuth; 
     private String currentUserUid;
 
     private List<EmployeeAdapter.EmployeeModel> employeeList = new ArrayList<>();
@@ -51,6 +61,10 @@ public class SettingsActivity extends AppCompatActivity {
     private String pendingBackupContent = "";
     private ActivityResultLauncher<Intent> backupSaveLauncher;
     private SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy HH:mm", new Locale("id", "ID"));
+
+    // 🔥 MESIN PRINTER BLUETOOTH 🔥
+    private BluetoothPrinterManager printerManager;
+    private ActivityResultLauncher<String[]> permissionLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,28 +76,45 @@ public class SettingsActivity extends AppCompatActivity {
         FirebaseUser user = auth.getCurrentUser();
         if (user != null) currentUserUid = user.getUid();
 
-        initSecondaryAuth(); // Siapkan mesin rahasia
+        printerManager = new BluetoothPrinterManager(this);
+
+        initSecondaryAuth(); 
         setupFileSaver();
+        setupPermissions(); // Siapkan mesin perizinan Android
+        
         initViews();
         loadUserProfile();
         loadEmployees();
         setupListeners();
+        
+        // Tampilkan nama printer yang terakhir tersimpan di tombol
+        updatePrinterButtonText();
     }
 
-    // Trik agar Owner tidak logout saat mendaftarkan kasir baru
+    private void updatePrinterButtonText() {
+        if (btnConnectPrinter != null) {
+            String savedName = printerManager.getSavedPrinterName();
+            btnConnectPrinter.setText("Printer: " + savedName);
+        }
+    }
+
+    private void setupPermissions() {
+        permissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+            boolean allGranted = true;
+            for (Boolean granted : result.values()) { if (!granted) allGranted = false; }
+            if (allGranted) showPairedPrinters();
+            else Toast.makeText(this, "Izin Bluetooth ditolak! Tidak bisa mencari printer.", Toast.LENGTH_SHORT).show();
+        });
+    }
+
     private void initSecondaryAuth() {
         try {
             FirebaseOptions options = FirebaseApp.getInstance().getOptions();
             FirebaseApp secondaryApp;
-            try {
-                secondaryApp = FirebaseApp.initializeApp(this, options, "SecondaryApp");
-            } catch (IllegalStateException e) {
-                secondaryApp = FirebaseApp.getInstance("SecondaryApp");
-            }
+            try { secondaryApp = FirebaseApp.initializeApp(this, options, "SecondaryApp"); } 
+            catch (IllegalStateException e) { secondaryApp = FirebaseApp.getInstance("SecondaryApp"); }
             secondaryAuth = FirebaseAuth.getInstance(secondaryApp);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void setupFileSaver() {
@@ -111,6 +142,7 @@ public class SettingsActivity extends AppCompatActivity {
         
         btnSaveProfile = findViewById(R.id.btnSaveProfile);
         btnAddEmployee = findViewById(R.id.btnAddEmployee);
+        btnConnectPrinter = findViewById(R.id.btnConnectPrinter);
         btnBackup = findViewById(R.id.btnBackup);
         btnBack = findViewById(R.id.btnBack);
         
@@ -118,13 +150,9 @@ public class SettingsActivity extends AppCompatActivity {
         rvEmployees.setLayoutManager(new LinearLayoutManager(this));
         
         adapter = new EmployeeAdapter(employeeList, new EmployeeAdapter.EmployeeActionListener() {
-            @Override
-            public void onUpdateAccess(String empId, String accessKey, boolean newValue) {
-                updateEmployeeAccess(empId, accessKey, newValue);
-            }
-            @Override
-            public void onDelete(String empId, String empName) {
-                deleteEmployee(empId, empName);
+            @Override public void onUpdateAccess(String empId, String accessKey, boolean newValue) { db.collection("users").document(empId).update("accessRights." + accessKey, newValue); }
+            @Override public void onDelete(String empId, String empName) { 
+                new AlertDialog.Builder(SettingsActivity.this).setTitle("Hapus Karyawan?").setMessage("Akses " + empName + " akan dicabut!").setPositiveButton("Hapus", (d, w) -> db.collection("users").document(empId).delete()).setNegativeButton("Batal", null).show(); 
             }
         });
         rvEmployees.setAdapter(adapter);
@@ -135,8 +163,69 @@ public class SettingsActivity extends AppCompatActivity {
         btnSaveProfile.setOnClickListener(v -> saveProfile());
         btnAddEmployee.setOnClickListener(v -> addEmployee());
         btnBackup.setOnClickListener(v -> executeFullBackup());
+        
+        // 🔥 TOMBOL CARI PRINTER 🔥
+        btnConnectPrinter.setOnClickListener(v -> checkBluetoothAndShowPrinters());
     }
 
+    // ==========================================
+    // 🔥 LOGIKA PENCARIAN PRINTER BLUETOOTH 🔥
+    // ==========================================
+    private void checkBluetoothAndShowPrinters() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            // Android 12 ke atas butuh izin spesifik
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                permissionLauncher.launch(new String[]{Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN});
+                return;
+            }
+        } else {
+            // Android 11 ke bawah butuh izin lokasi
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                permissionLauncher.launch(new String[]{Manifest.permission.ACCESS_FINE_LOCATION});
+                return;
+            }
+        }
+        showPairedPrinters();
+    }
+
+    @SuppressLint("MissingPermission")
+    private void showPairedPrinters() {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter == null) { Toast.makeText(this, "HP ini tidak memiliki Bluetooth", Toast.LENGTH_SHORT).show(); return; }
+        if (!bluetoothAdapter.isEnabled()) { Toast.makeText(this, "Mohon nyalakan Bluetooth HP Anda terlebih dahulu!", Toast.LENGTH_LONG).show(); return; }
+
+        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+        if (pairedDevices == null || pairedDevices.isEmpty()) {
+            Toast.makeText(this, "Tidak ada perangkat Bluetooth yang di-pairing. Pairing dulu printer Anda di Pengaturan HP.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        List<String> listNamas = new ArrayList<>();
+        final List<BluetoothDevice> listDevices = new ArrayList<>();
+
+        for (BluetoothDevice device : pairedDevices) {
+            listNamas.add(device.getName() + "\n" + device.getAddress());
+            listDevices.add(device);
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Pilih Printer Thermal");
+        
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_singlechoice, listNamas);
+        builder.setAdapter(arrayAdapter, (dialog, which) -> {
+            BluetoothDevice selectedDevice = listDevices.get(which);
+            printerManager.savePrinter(selectedDevice.getAddress(), selectedDevice.getName());
+            updatePrinterButtonText();
+            Toast.makeText(this, "Printer " + selectedDevice.getName() + " berhasil dipilih!", Toast.LENGTH_SHORT).show();
+        });
+        
+        builder.setNegativeButton("Batal", null);
+        builder.show();
+    }
+
+    // ==========================================
+    // 🔥 FUNGSI LAINNYA (Sama seperti sebelumnya) 🔥
+    // ==========================================
     private void loadUserProfile() {
         if (currentUserUid == null) return;
         db.collection("users").document(currentUserUid).addSnapshotListener((snapshot, e) -> {
@@ -164,9 +253,6 @@ public class SettingsActivity extends AppCompatActivity {
         db.collection("users").document(currentUserUid).update(updates).addOnSuccessListener(aVoid -> Toast.makeText(this, "Tersimpan!", Toast.LENGTH_SHORT).show());
     }
 
-    // ==========================================
-    // 🔥 MESIN MULTI-KASIR (TAMBAH, BACA, HAPUS, UPDATE) 🔥
-    // ==========================================
     private void loadEmployees() {
         if (currentUserUid == null) return;
         db.collection("users").whereEqualTo("ownerId", currentUserUid).addSnapshotListener((snapshot, e) -> {
@@ -188,15 +274,13 @@ public class SettingsActivity extends AppCompatActivity {
         String pass = inputEmpPass.getText().toString().trim();
 
         if (name.isEmpty() || email.isEmpty() || pass.length() < 6) { Toast.makeText(this, "Lengkapi data (Password min 6)", Toast.LENGTH_SHORT).show(); return; }
-        if (!email.contains("@")) email = email + "@sahabatusahamu.com"; // Format email rahasia ISZI POS
+        if (!email.contains("@")) email = email + "@sahabatusahamu.com"; 
 
         Toast.makeText(this, "Mendaftarkan Karyawan...", Toast.LENGTH_SHORT).show();
         final String finalEmail = email;
 
         secondaryAuth.createUserWithEmailAndPassword(email, pass).addOnSuccessListener(authResult -> {
             String newUid = authResult.getUser().getUid();
-            
-            // Hak Akses Bawaan (Hanya Kasir & Kalkulator yg aktif)
             Map<String, Boolean> defaultAccess = new HashMap<>();
             defaultAccess.put("cashier", true); defaultAccess.put("calculator", true);
             defaultAccess.put("report", false); defaultAccess.put("stock", false);
@@ -209,25 +293,12 @@ public class SettingsActivity extends AppCompatActivity {
 
             db.collection("users").document(newUid).set(empData).addOnSuccessListener(aVoid -> {
                 inputEmpName.setText(""); inputEmpId.setText(""); inputEmpPass.setText("");
-                secondaryAuth.signOut(); // Logout dari akun rahasia
+                secondaryAuth.signOut(); 
                 Toast.makeText(this, "Kasir Berhasil Didaftarkan!", Toast.LENGTH_LONG).show();
             });
         }).addOnFailureListener(e -> Toast.makeText(this, "Gagal: " + e.getMessage(), Toast.LENGTH_LONG).show());
     }
 
-    private void updateEmployeeAccess(String empId, String accessKey, boolean newValue) {
-        db.collection("users").document(empId).update("accessRights." + accessKey, newValue);
-    }
-
-    private void deleteEmployee(String empId, String empName) {
-        new AlertDialog.Builder(this).setTitle("Hapus Karyawan?").setMessage("Akses " + empName + " akan dicabut permanen!")
-            .setPositiveButton("Hapus", (d, w) -> db.collection("users").document(empId).delete())
-            .setNegativeButton("Batal", null).show();
-    }
-
-    // ==========================================
-    // 🔥 MESIN BACKUP (SAMA SEPERTI SEBELUMNYA) 🔥
-    // ==========================================
     private void executeFullBackup() {
         if (currentUserUid == null) return;
         Toast.makeText(this, "Mengumpulkan data...", Toast.LENGTH_SHORT).show();
