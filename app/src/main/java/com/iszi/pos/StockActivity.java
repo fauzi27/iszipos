@@ -49,6 +49,7 @@ public class StockActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+      ThemeManager.setCustomTheme(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stock);
 
