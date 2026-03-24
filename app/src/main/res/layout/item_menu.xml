@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
-    app:cardBackgroundColor="#1E293B"
+    app:cardBackgroundColor="?attr/colorBgCard"
     app:cardCornerRadius="16dp"
     app:cardElevation="2dp">
 
@@ -19,7 +19,7 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             app:cardCornerRadius="8dp"
-            app:cardBackgroundColor="#334155"
+            app:cardBackgroundColor="?attr/colorBgRoot"
             app:cardElevation="0dp">
             
             <ImageView
@@ -27,7 +27,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@android:drawable/ic_menu_gallery"
-                app:tint="#9CA3AF"
+                app:tint="?attr/colorTextSub"
                 android:scaleType="centerCrop"/>
         </androidx.cardview.widget.CardView>
 
@@ -43,7 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Nama Menu"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorTextMain"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:maxLines="1"
@@ -54,7 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="KATEGORI"
-                android:textColor="#9CA3AF"
+                android:textColor="?attr/colorTextSub"
                 android:textSize="10sp"
                 android:layout_marginTop="2dp"/>
 
