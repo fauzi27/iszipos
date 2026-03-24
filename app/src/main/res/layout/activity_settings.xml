@@ -36,7 +36,8 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -47,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="#1E293B"
-                app:cardCornerRadius="16dp"
+                app:cardCornerRadius="8dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -62,56 +63,79 @@
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
                         android:layout_marginBottom="16dp">
-                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@android:drawable/ic_menu_edit" app:tint="#3B82F6"/>
+                        <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@android:drawable/ic_menu_edit" app:tint="#3B82F6"/>
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Profil Usaha &amp; Struk" android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:layout_marginStart="8dp"/>
                     </LinearLayout>
 
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Nama Usaha (Kop Struk)" android:textColor="#9CA3AF" android:textSize="12sp" android:layout_marginBottom="4dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="NAMA USAHA (TAMPIL DI KOP STRUK)" android:textColor="#9CA3AF" android:textSize="10sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
                     <EditText
                         android:id="@+id/inputShopName"
                         android:layout_width="match_parent"
                         android:layout_height="45dp"
-                        android:background="@drawable/bg_circle_button"
-                        android:backgroundTint="#0F172A"
+                        android:background="@drawable/bg_input_modern"
                         android:textColor="#FFFFFF"
                         android:paddingHorizontal="12dp"
                         android:hint="Contoh: ISZI POS"
                         android:textColorHint="#475569"
-                        android:layout_marginBottom="12dp"/>
+                        android:layout_marginBottom="16dp"/>
 
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Alamat &amp; Kontak" android:textColor="#9CA3AF" android:textSize="12sp" android:layout_marginBottom="4dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="ALAMAT CABANG &amp; KONTAK" android:textColor="#9CA3AF" android:textSize="10sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
                     <EditText
                         android:id="@+id/inputShopAddress"
                         android:layout_width="match_parent"
                         android:layout_height="80dp"
                         android:gravity="top|start"
-                        android:background="@drawable/bg_circle_button"
-                        android:backgroundTint="#0F172A"
+                        android:background="@drawable/bg_input_modern"
                         android:textColor="#FFFFFF"
                         android:padding="12dp"
                         android:hint="Jl. Mawar No. 12..."
                         android:textColorHint="#475569"
-                        android:layout_marginBottom="12dp"/>
+                        android:layout_marginBottom="16dp"/>
 
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pesan Footer (Kaki Struk)" android:textColor="#9CA3AF" android:textSize="12sp" android:layout_marginBottom="4dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PESAN FOOTER (KAKI STRUK)" android:textColor="#9CA3AF" android:textSize="10sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
                     <EditText
                         android:id="@+id/inputFooter"
                         android:layout_width="match_parent"
                         android:layout_height="60dp"
                         android:gravity="top|start"
-                        android:background="@drawable/bg_circle_button"
-                        android:backgroundTint="#0F172A"
+                        android:background="@drawable/bg_input_modern"
                         android:textColor="#FFFFFF"
                         android:padding="12dp"
                         android:hint="Terima kasih atas kunjungan..."
                         android:textColorHint="#475569"
                         android:layout_marginBottom="16dp"/>
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:background="@drawable/bg_input_modern"
+                        android:padding="12dp"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="16dp">
+                        
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Hapus Watermark Struk" android:textColor="#FFFFFF" android:textSize="14sp" android:textStyle="bold"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Menghilangkan promosi ISZI POS di struk." android:textColor="#9CA3AF" android:textSize="10sp" android:layout_marginTop="2dp"/>
+                        </LinearLayout>
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/switchWatermark"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:theme="@style/Widget.AppCompat.CompoundButton.Switch"/>
+                    </LinearLayout>
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnSaveProfile"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
-                        android:text="Simpan Profil"
+                        android:text="Simpan Pengaturan"
+                        android:textColor="#FFFFFF"
                         app:backgroundTint="#3B82F6"
                         app:cornerRadius="8dp"/>
                 </LinearLayout>
@@ -121,7 +145,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="#1E293B"
-                app:cardCornerRadius="16dp"
+                app:cardCornerRadius="8dp"
                 android:layout_marginBottom="16dp">
 
                 <LinearLayout
@@ -136,17 +160,54 @@
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
                         android:layout_marginBottom="8dp">
-                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@android:drawable/ic_menu_myplaces" app:tint="#8B5CF6"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kelola Karyawan (Kasir)" android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:layout_marginStart="8dp"/>
+                        <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@android:drawable/ic_menu_send" app:tint="#10B981"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Printer Struk Bluetooth" android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:layout_marginStart="8dp"/>
                     </LinearLayout>
                     
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Buat akun login terpisah untuk kasir Anda dan atur hak aksesnya." android:textColor="#9CA3AF" android:textSize="12sp" android:layout_marginBottom="12dp"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Scan dan hubungkan dengan printer Thermal (58mm/80mm) yang sudah di-pairing dengan HP Anda." android:textColor="#9CA3AF" android:textSize="12sp" android:layout_marginBottom="16dp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnConnectPrinter"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:text="Cari Printer Bluetooth"
+                        android:textColor="#FFFFFF"
+                        app:backgroundTint="#10B981"
+                        app:cornerRadius="8dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="#1E293B"
+                app:cardCornerRadius="8dp"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="8dp">
+                        <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@android:drawable/ic_menu_myplaces" app:tint="#8B5CF6"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Akun Multi-Kasir" android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:layout_marginStart="8dp"/>
+                    </LinearLayout>
+                    
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Buat akun terpisah untuk pegawai Anda. Mereka tidak akan bisa melihat omzet atau menghapus laporan." android:textColor="#9CA3AF" android:textSize="12sp" android:layout_marginBottom="16dp"/>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnAddEmployee"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
-                        android:text="Tambah Karyawan (Segera Hadir)"
+                        android:text="Daftarkan Karyawan (Segera Hadir)"
+                        android:textColor="#FFFFFF"
                         app:backgroundTint="#0F172A"
                         app:strokeColor="#8B5CF6"
                         app:strokeWidth="1dp"
@@ -157,45 +218,8 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="#1E293B"
-                app:cardCornerRadius="16dp"
-                android:layout_marginBottom="16dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
-                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@android:drawable/ic_menu_send" app:tint="#10B981"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Printer Struk Bluetooth" android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:layout_marginStart="8dp"/>
-                    </LinearLayout>
-                    
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cetak struk fisik langsung dari HP. Pastikan Bluetooth menyala." android:textColor="#9CA3AF" android:textSize="12sp" android:layout_marginBottom="12dp"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnConnectPrinter"
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:text="Cari Printer (Segera Hadir)"
-                        app:backgroundTint="#0F172A"
-                        app:strokeColor="#10B981"
-                        app:strokeWidth="1dp"
-                        app:cornerRadius="8dp"/>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="#1E293B"
-                app:cardCornerRadius="16dp"
+                app:cardBackgroundColor="#064E3B"
+                app:cardCornerRadius="8dp"
                 android:layout_marginBottom="32dp">
 
                 <LinearLayout
@@ -210,19 +234,19 @@
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
                         android:layout_marginBottom="8dp">
-                        <ImageView android:layout_width="20dp" android:layout_height="20dp" android:src="@android:drawable/ic_menu_save" app:tint="#F59E0B"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Backup Database (Excel)" android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:layout_marginStart="8dp"/>
+                        <ImageView android:layout_width="18dp" android:layout_height="18dp" android:src="@android:drawable/ic_menu_save" app:tint="#34D399"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Backup Data Aman" android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" android:layout_marginStart="8dp"/>
                     </LinearLayout>
                     
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Unduh seluruh data Menu dan Transaksi menjadi file Excel." android:textColor="#9CA3AF" android:textSize="12sp" android:layout_marginBottom="12dp"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Unduh salinan data Usaha (Menu, Stok, Transaksi) ke memori HP sebagai cadangan." android:textColor="#A7F3D0" android:textSize="12sp" android:layout_marginBottom="16dp"/>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnBackup"
                         android:layout_width="match_parent"
                         android:layout_height="50dp"
-                        android:text="Mulai Backup (Premium)"
-                        app:backgroundTint="#78350F"
-                        android:textColor="#FDE68A"
+                        android:text="Backup Database (Excel)"
+                        android:textColor="#FFFFFF"
+                        app:backgroundTint="#047857"
                         app:cornerRadius="8dp"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
