@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground"
+    android:background="?attr/colorBgRoot"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -29,7 +29,7 @@
             android:textStyle="bold"
             android:textAllCaps="true"
             android:letterSpacing="0.05"
-            android:textColor="?android:attr/textColorPrimary" />
+            android:textColor="?attr/colorTextMain" />
 
         <TextView
             android:id="@+id/tvShopAddress"
@@ -38,7 +38,7 @@
             android:text="Memuat lokasi..."
             android:textSize="12sp"
             android:layout_marginTop="4dp"
-            android:textColor="?android:attr/textColorSecondary" />
+            android:textColor="?attr/colorTextSub" />
 
         <TextView
             android:id="@+id/tvRoleBadge"
@@ -79,9 +79,11 @@
                 android:layout_marginBottom="12dp"
                 android:text="Mulai Jualan\nBuka Kasir &amp; Keranjang"
                 android:textAllCaps="false"
+                android:textColor="#FFFFFF"
                 app:cornerRadius="16dp"
                 app:backgroundTint="#2563EB"
                 app:icon="@android:drawable/ic_menu_add" 
+                app:iconTint="#FFFFFF"
                 app:iconSize="32dp"
                 app:iconGravity="textStart"
                 app:iconPadding="16dp"/>
@@ -100,9 +102,11 @@
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
                     android:text="Laporan"
+                    android:textColor="#FFFFFF"
                     app:cornerRadius="16dp"
                     app:backgroundTint="#9333EA"
                     app:iconGravity="top"
+                    app:iconTint="#FFFFFF"
                     app:icon="@android:drawable/ic_menu_sort_by_size"/>
                     
                  <com.google.android.material.button.MaterialButton
@@ -112,9 +116,11 @@
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
                     android:text="Tema UI"
+                    android:textColor="#FFFFFF"
                     app:cornerRadius="16dp"
                     app:backgroundTint="#F59E0B"
                     app:iconGravity="top"
+                    app:iconTint="#FFFFFF"
                     app:icon="@android:drawable/ic_menu_gallery"/>
 
                 <com.google.android.material.button.MaterialButton
@@ -124,9 +130,11 @@
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
                     android:text="Stok Barang"
+                    android:textColor="#FFFFFF"
                     app:cornerRadius="16dp"
                     app:backgroundTint="#4F46E5"
                     app:iconGravity="top"
+                    app:iconTint="#FFFFFF"
                     app:icon="@android:drawable/ic_menu_view"/>
 
                 <com.google.android.material.button.MaterialButton
@@ -136,9 +144,11 @@
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
                     android:text="Buku Besar"
+                    android:textColor="#FFFFFF"
                     app:cornerRadius="16dp"
                     app:backgroundTint="#059669"
                     app:iconGravity="top"
+                    app:iconTint="#FFFFFF"
                     app:icon="@android:drawable/ic_menu_agenda"/>
 
                 <com.google.android.material.button.MaterialButton
@@ -148,9 +158,11 @@
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
                     android:text="Kelola Menu"
+                    android:textColor="#FFFFFF"
                     app:cornerRadius="16dp"
                     app:backgroundTint="#EA580C"
                     app:iconGravity="top"
+                    app:iconTint="#FFFFFF"
                     app:icon="@android:drawable/ic_menu_manage"/>
 
                 <com.google.android.material.button.MaterialButton
@@ -160,9 +172,11 @@
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
                     android:text="Pengaturan"
+                    android:textColor="#FFFFFF"
                     app:cornerRadius="16dp"
                     app:backgroundTint="#4B5563"
                     app:iconGravity="top"
+                    app:iconTint="#FFFFFF"
                     app:icon="@android:drawable/ic_menu_preferences"/>
 
             </GridLayout>
