@@ -69,7 +69,6 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         // 🔥 MESIN TEMA DINAMIS DIPANGGIL DI SINI 🔥
         ThemeManager.setCustomTheme(this);
-        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
