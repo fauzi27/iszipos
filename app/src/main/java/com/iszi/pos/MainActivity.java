@@ -19,10 +19,13 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     
     private TextView tvShopName, tvShopAddress, tvRoleBadge, tvConnectionStatus;
-    private MaterialButton btnCashier, btnReport, btnManual, btnStock, btnTable, btnAdmin, btnSettings, btnLogout;
+    private MaterialButton btnCashier, btnReport, btnTheme, btnStock, btnTable, btnAdmin, btnSettings, btnLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 🔥 OTOMATIS TERAPKAN TEMA SEBELUM LAYAR MUNCUL 🔥
+        ThemeManager.applyTheme(this, ThemeManager.getSavedTheme(this));
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -48,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnCashier = findViewById(R.id.btnCashier);
         btnReport = findViewById(R.id.btnReport);
-        btnManual = findViewById(R.id.btnManual);
+        btnTheme = findViewById(R.id.btnTheme); // 🔥 INISIALISASI TOMBOL TEMA BARU
         btnStock = findViewById(R.id.btnStock);
         btnTable = findViewById(R.id.btnTable);
         btnAdmin = findViewById(R.id.btnAdmin);
@@ -70,11 +73,8 @@ public class MainActivity extends AppCompatActivity {
                 String name = snapshot.getString("name");
 
                 if (shopName != null) tvShopName.setText(shopName);
-                if (address != null) {
-                    tvShopAddress.setText(address);
-                } else {
-                    tvShopAddress.setText("Lokasi Usaha Anda");
-                }
+                if (address != null) tvShopAddress.setText(address);
+                else tvShopAddress.setText("Lokasi Usaha Anda");
 
                 if ("kasir".equals(role)) {
                     tvRoleBadge.setVisibility(View.VISIBLE);
@@ -88,36 +88,29 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        // 🔥 SEMUA TOMBOL SUDAH AKTIF DAN TERSAMBUNG! 🔥
-        
         btnCashier.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, CashierActivity.class)));
-        btnManual.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, CalculatorActivity.class)));
         btnAdmin.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, AdminActivity.class)));
         btnReport.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ReportActivity.class)));
         btnStock.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, StockActivity.class)));
         btnTable.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TableActivity.class)));
         btnSettings.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, SettingsActivity.class)));
         
+        // 🔥 MUNCULKAN BOTTOM SHEET TEMA SAAT DIKLIK 🔥
+        btnTheme.setOnClickListener(v -> ThemeBottomSheet.show(this));
+        
         btnLogout.setOnClickListener(v -> showLogoutDialog());
 
-        // 👑 JALAN RAHASIA KE RUANG SUPER ADMIN (SUDAH DIGEMBOK KETAT) 👑
-        // Tekan dan Tahan (Long Press) nama toko di header untuk masuk ke God Mode
         tvShopName.setOnLongClickListener(v -> {
             FirebaseUser currentUser = auth.getCurrentUser();
-            
-            // 🔥 EMAIL SUPER ADMIN YANG SAH 🔥
             String superAdminEmail = "Zii20fe@gmail.com"; 
 
             if (currentUser != null && currentUser.getEmail() != null) {
-                // Gunakan equalsIgnoreCase agar aman dari perbedaan huruf besar/kecil (zii20fe vs Zii20fe)
                 if (currentUser.getEmail().equalsIgnoreCase(superAdminEmail)) {
-                    // Jika emailnya COCOK, izinkan masuk
                     Toast.makeText(MainActivity.this, "Memasuki ISZI Command Center...", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(MainActivity.this, SuperAdminActivity.class));
                 }
-                // Jika tidak cocok, method ini selesai tanpa melakukan apa-apa (silent reject)
             }
-            return true; // Return true menandakan aksi Long Press sudah ditangani
+            return true; 
         });
     }
 
