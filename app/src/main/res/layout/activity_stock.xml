@@ -4,14 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#0F172A">
+    android:background="?attr/colorBgRoot">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/bg_badge_kasir"
-        android:backgroundTint="#4338CA"
+        android:background="?attr/colorBgCard"
         android:padding="16dp"
         android:elevation="8dp">
 
@@ -28,14 +27,14 @@
                 android:layout_height="36dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@android:drawable/ic_menu_revert"
-                app:tint="#FFFFFF"/>
+                app:tint="?attr/colorTextMain"/>
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Manajemen Stok"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorTextMain"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginStart="8dp"/>
@@ -46,12 +45,12 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:background="@drawable/bg_circle_button"
-                android:backgroundTint="#E0E7FF"
+                android:backgroundTint="?attr/colorBgRoot"
                 android:paddingHorizontal="10dp"
                 android:paddingVertical="6dp"
                 android:gravity="center">
-                <ImageView android:layout_width="12dp" android:layout_height="12dp" android:src="@android:drawable/ic_menu_sort_by_size" app:tint="#4338CA"/>
-                <TextView android:id="@+id/tvSortLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Default" android:textColor="#4338CA" android:textSize="10sp" android:textStyle="bold" android:layout_marginStart="4dp"/>
+                <ImageView android:layout_width="12dp" android:layout_height="12dp" android:src="@android:drawable/ic_menu_sort_by_size" app:tint="?attr/colorTextMain"/>
+                <TextView android:id="@+id/tvSortLabel" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Default" android:textColor="?attr/colorTextMain" android:textSize="10sp" android:textStyle="bold" android:layout_marginStart="4dp"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -60,12 +59,12 @@
             android:layout_height="40dp"
             android:orientation="horizontal"
             android:background="@drawable/bg_circle_button"
-            android:backgroundTint="#1E293B"
+            android:backgroundTint="?attr/colorBgRoot"
             android:gravity="center_vertical"
             android:paddingHorizontal="12dp"
             android:layout_marginBottom="12dp">
             
-            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@android:drawable/ic_menu_search" app:tint="#9CA3AF"/>
+            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@android:drawable/ic_menu_search" app:tint="?attr/colorTextSub"/>
             
             <EditText
                 android:id="@+id/inputSearchStock"
@@ -73,8 +72,8 @@
                 android:layout_height="match_parent"
                 android:background="@null"
                 android:hint="Cari nama menu..."
-                android:textColor="#FFFFFF"
-                android:textColorHint="#9CA3AF"
+                android:textColor="?attr/colorTextMain"
+                android:textColorHint="?attr/colorTextSub"
                 android:textSize="14sp"
                 android:layout_marginStart="8dp"/>
         </LinearLayout>
