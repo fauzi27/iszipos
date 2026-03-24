@@ -62,12 +62,14 @@ public class SettingsActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> backupSaveLauncher;
     private SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy HH:mm", new Locale("id", "ID"));
 
-    // 🔥 MESIN PRINTER BLUETOOTH 🔥
     private BluetoothPrinterManager printerManager;
     private ActivityResultLauncher<String[]> permissionLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 🔥 MESIN TEMA DINAMIS DIPANGGIL DI SINI 🔥
+        ThemeManager.setCustomTheme(this);
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
@@ -80,14 +82,13 @@ public class SettingsActivity extends AppCompatActivity {
 
         initSecondaryAuth(); 
         setupFileSaver();
-        setupPermissions(); // Siapkan mesin perizinan Android
+        setupPermissions(); 
         
         initViews();
         loadUserProfile();
         loadEmployees();
         setupListeners();
         
-        // Tampilkan nama printer yang terakhir tersimpan di tombol
         updatePrinterButtonText();
     }
 
@@ -163,23 +164,16 @@ public class SettingsActivity extends AppCompatActivity {
         btnSaveProfile.setOnClickListener(v -> saveProfile());
         btnAddEmployee.setOnClickListener(v -> addEmployee());
         btnBackup.setOnClickListener(v -> executeFullBackup());
-        
-        // 🔥 TOMBOL CARI PRINTER 🔥
         btnConnectPrinter.setOnClickListener(v -> checkBluetoothAndShowPrinters());
     }
 
-    // ==========================================
-    // 🔥 LOGIKA PENCARIAN PRINTER BLUETOOTH 🔥
-    // ==========================================
     private void checkBluetoothAndShowPrinters() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // Android 12 ke atas butuh izin spesifik
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 permissionLauncher.launch(new String[]{Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN});
                 return;
             }
         } else {
-            // Android 11 ke bawah butuh izin lokasi
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 permissionLauncher.launch(new String[]{Manifest.permission.ACCESS_FINE_LOCATION});
                 return;
@@ -223,9 +217,6 @@ public class SettingsActivity extends AppCompatActivity {
         builder.show();
     }
 
-    // ==========================================
-    // 🔥 FUNGSI LAINNYA (Sama seperti sebelumnya) 🔥
-    // ==========================================
     private void loadUserProfile() {
         if (currentUserUid == null) return;
         db.collection("users").document(currentUserUid).addSnapshotListener((snapshot, e) -> {
