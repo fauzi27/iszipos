@@ -55,19 +55,6 @@
             android:visibility="gone"/>
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/btnToggleTheme"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/bg_circle_button"
-        android:elevation="2dp"
-        android:src="@android:drawable/ic_menu_manage" 
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:contentDescription="Toggle Theme" />
-
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -98,6 +85,7 @@
                 app:iconSize="32dp"
                 app:iconGravity="textStart"
                 app:iconPadding="16dp"/>
+                
             <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -118,16 +106,16 @@
                     app:icon="@android:drawable/ic_menu_sort_by_size"/>
                     
                  <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnManual"
+                    android:id="@+id/btnTheme"
                     android:layout_width="0dp"
                     android:layout_height="100dp"
                     android:layout_columnWeight="1"
                     android:layout_margin="6dp"
-                    android:text="Manual"
+                    android:text="Tema UI"
                     app:cornerRadius="16dp"
-                    app:backgroundTint="#0D9488"
+                    app:backgroundTint="#F59E0B"
                     app:iconGravity="top"
-                    app:icon="@android:drawable/ic_menu_edit"/>
+                    app:icon="@android:drawable/ic_menu_gallery"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnStock"
@@ -139,7 +127,7 @@
                     app:cornerRadius="16dp"
                     app:backgroundTint="#4F46E5"
                     app:iconGravity="top"
-                    app:icon="@android:drawable/ic_menu_gallery"/>
+                    app:icon="@android:drawable/ic_menu_view"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnTable"
@@ -178,8 +166,6 @@
                     app:icon="@android:drawable/ic_menu_preferences"/>
 
             </GridLayout>
-
-            
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogout"
