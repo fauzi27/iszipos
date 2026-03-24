@@ -23,8 +23,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // 🔥 OTOMATIS TERAPKAN TEMA SEBELUM LAYAR MUNCUL 🔥
-        ThemeManager.applyTheme(this, ThemeManager.getSavedTheme(this));
+        // 🔥 MESIN TEMA DINAMIS DIPANGGIL DI SINI 🔥
+        ThemeManager.setCustomTheme(this);
         
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
         btnCashier = findViewById(R.id.btnCashier);
         btnReport = findViewById(R.id.btnReport);
-        btnTheme = findViewById(R.id.btnTheme); // 🔥 INISIALISASI TOMBOL TEMA BARU
+        btnTheme = findViewById(R.id.btnTheme); 
         btnStock = findViewById(R.id.btnStock);
         btnTable = findViewById(R.id.btnTable);
         btnAdmin = findViewById(R.id.btnAdmin);
@@ -95,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
         btnTable.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, TableActivity.class)));
         btnSettings.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, SettingsActivity.class)));
         
-        // 🔥 MUNCULKAN BOTTOM SHEET TEMA SAAT DIKLIK 🔥
         btnTheme.setOnClickListener(v -> ThemeBottomSheet.show(this));
         
         btnLogout.setOnClickListener(v -> showLogoutDialog());
