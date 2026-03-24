@@ -4,10 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
-    app:cardBackgroundColor="#0F172A"
+    app:cardBackgroundColor="?attr/colorBgRoot"
     app:cardCornerRadius="12dp"
     app:cardElevation="0dp"
-    app:strokeColor="#1E40AF"
+    app:strokeColor="?attr/colorBorder"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -33,7 +33,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Nama Karyawan"
-                    android:textColor="#FFFFFF"
+                    android:textColor="?attr/colorTextMain"
                     android:textSize="16sp"
                     android:textStyle="bold"/>
                 <TextView
@@ -41,7 +41,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="email@sahabatusahamu.com"
-                    android:textColor="#9CA3AF"
+                    android:textColor="?attr/colorTextSub"
                     android:textSize="12sp"/>
             </LinearLayout>
 
@@ -59,7 +59,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Ketuk untuk On/Off Akses Menu:"
-            android:textColor="#9CA3AF"
+            android:textColor="?attr/colorTextSub"
             android:textSize="10sp"
             android:textStyle="italic"
             android:layout_marginBottom="8dp"/>
@@ -70,13 +70,13 @@
             android:columnCount="2"
             android:alignmentMode="alignBounds">
 
-            <CheckBox android:id="@+id/chkAccessCashier" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mesin Kasir" android:textColor="#FFFFFF" android:buttonTint="#10B981" android:layout_marginEnd="16dp"/>
-            <CheckBox android:id="@+id/chkAccessCalculator" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kalkulator" android:textColor="#FFFFFF" android:buttonTint="#10B981"/>
-            <CheckBox android:id="@+id/chkAccessReport" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Laporan" android:textColor="#FFFFFF" android:buttonTint="#10B981" android:layout_marginEnd="16dp"/>
-            <CheckBox android:id="@+id/chkAccessStock" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Stok Barang" android:textColor="#FFFFFF" android:buttonTint="#10B981"/>
-            <CheckBox android:id="@+id/chkAccessTable" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tabel Rekap" android:textColor="#FFFFFF" android:buttonTint="#10B981" android:layout_marginEnd="16dp"/>
-            <CheckBox android:id="@+id/chkAccessMenu" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kelola Menu" android:textColor="#FFFFFF" android:buttonTint="#10B981"/>
-            <CheckBox android:id="@+id/chkAccessSettings" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pengaturan" android:textColor="#FFFFFF" android:buttonTint="#10B981" android:layout_marginEnd="16dp"/>
+            <CheckBox android:id="@+id/chkAccessCashier" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Mesin Kasir" android:textColor="?attr/colorTextMain" android:buttonTint="#10B981" android:layout_marginEnd="16dp"/>
+            <CheckBox android:id="@+id/chkAccessCalculator" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kalkulator" android:textColor="?attr/colorTextMain" android:buttonTint="#10B981"/>
+            <CheckBox android:id="@+id/chkAccessReport" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Laporan" android:textColor="?attr/colorTextMain" android:buttonTint="#10B981" android:layout_marginEnd="16dp"/>
+            <CheckBox android:id="@+id/chkAccessStock" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Stok Barang" android:textColor="?attr/colorTextMain" android:buttonTint="#10B981"/>
+            <CheckBox android:id="@+id/chkAccessTable" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tabel Rekap" android:textColor="?attr/colorTextMain" android:buttonTint="#10B981" android:layout_marginEnd="16dp"/>
+            <CheckBox android:id="@+id/chkAccessMenu" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kelola Menu" android:textColor="?attr/colorTextMain" android:buttonTint="#10B981"/>
+            <CheckBox android:id="@+id/chkAccessSettings" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Pengaturan" android:textColor="?attr/colorTextMain" android:buttonTint="#10B981" android:layout_marginEnd="16dp"/>
 
         </GridLayout>
     </LinearLayout>
