@@ -56,7 +56,7 @@ public class ReportActivity extends AppCompatActivity {
     private TransactionAdapter txAdapter;
 
     private Calendar activeDate = Calendar.getInstance();
-    private String filterMode = "daily"; // daily, weekly, monthly
+    private String filterMode = "daily"; 
     
     private NumberFormat formatRupiah = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
 
@@ -68,6 +68,9 @@ public class ReportActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 🔥 MESIN TEMA DINAMIS DIPANGGIL DI SINI 🔥
+        ThemeManager.setCustomTheme(this);
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report);
 
@@ -153,9 +156,6 @@ public class ReportActivity extends AppCompatActivity {
         findViewById(R.id.btnExportPdf).setOnClickListener(v -> exportToPDF());
     }
 
-    // ==========================================
-    // 🔥 MESIN WAKTU & FILTER 🔥
-    // ==========================================
     private void setFilterMode(String mode) {
         filterMode = mode;
         
@@ -250,10 +250,7 @@ public class ReportActivity extends AppCompatActivity {
                         tx.setId(doc.getId());
                         rawTxList.add(tx);
                     }
-                    
-                    // 🔥 MANTRA PENGURUT: TRANSAKSI TERBARU DI PALING ATAS 🔥
                     Collections.sort(rawTxList, (t1, t2) -> Long.compare(t2.getTimestamp(), t1.getTimestamp()));
-
                     applySearchFilter(); 
                 });
     }
@@ -295,9 +292,6 @@ public class ReportActivity extends AppCompatActivity {
         txAdapter.notifyDataSetChanged();
     }
 
-    // ==========================================
-    // 🔥 REFUND & PELUNASAN 🔥
-    // ==========================================
     private void processRefund(TransactionModel tx) {
         new AlertDialog.Builder(this)
             .setTitle("Batalkan Transaksi?")
@@ -341,9 +335,6 @@ public class ReportActivity extends AppCompatActivity {
           });
     }
 
-    // ==========================================
-    // 🔥 EXPORT EXCEL & PDF 🔥
-    // ==========================================
     private void exportToExcel() {
         if (filteredTxList.isEmpty()) { Toast.makeText(this, "Data kosong!", Toast.LENGTH_SHORT).show(); return; }
         StringBuilder csv = new StringBuilder();
@@ -400,7 +391,9 @@ public class ReportActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
-                printManager.print("Laporan_ISZI", webView.createPrintDocumentAdapter("Laporan_ISZI"), new PrintAttributes.Builder().build());
+                String jobName = "Laporan_" + tvDateDisplay.getText().toString();
+                PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter(jobName);
+                printManager.print(jobName, printAdapter, new PrintAttributes.Builder().build());
             }
         });
         webView.loadDataWithBaseURL(null, html.toString(), "text/HTML", "UTF-8", null);
